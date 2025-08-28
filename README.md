@@ -1,0 +1,309 @@
+# PCB MILLING CNC OVERVIEW  
+
+<img width="1236" height="574" alt="image" src="https://github.com/user-attachments/assets/af06d7e1-19c9-42f3-aa06-0edbf7c719b0" />
+
+
+I've decided to make this CNC from spare parts to see if I was up to the challenge. This was very time-consuming, and it is still a work in progress, but it is enough for a first publication, to see if people like it and maybe contribute.
+****The total cost is around 150€, it also requires several hours of printing and assembly.****  
+
+This project aims to create an affordable CNC that can be built with many common parts you might already have lying around: [here you can find the bill of materials.](https://docs.google.com/spreadsheets/d/1UYvKP2MYEV8sfaGlQmCoOGCL_2WACBQjZGL0-ml8eyc/edit?usp=sharing)
+
+This project also needs some tools like:  
+- A soldering iron
+- Something to cut M8 and M4 threaded rods, like a hacksaw or Dremel (or even a bolt cutter for the M4 rod)
+- M3 and M1 allen key (usually provided with the screw sets and collet).
+- M8 wrench.
+- Common household supplies like tweezers and scissors.
+- A drill (even a weak one) to drive the M8 rods into PLA pieces and make holes.
+- A hammer + small screwdriver (it is sometimes useful to drive the M4 rods into the PLA).
+- Phillips screwdrivers for the screw terminals of the relay and motor driver.
+- A hard brush to clean up the boards after milling. 
+
+This machine is made to accept two common formats of copperclad board I can find online, which are 10x7cm and 5x7cm.
+It is a relatively slow machine ([but it could be improved](https://github.com/Agasaworkshop/Agasa_CNC_PCB?tab=readme-ov-file#plans-for-upgrades)), and results also depends on the board quality.  
+It is also very loud and requires eye protection, ear protection, and a respirator mask.
+
+Here is a quick preview of the process of making a board (more info below):
+
+| Step | Description    | Time taken   | Needs operator surveillance |
+|:---------|:---------:|---------:|---------:|
+| Make the PCB    | use [Kicad](https://www.kicad.org/) or some other software to make the gerber files | depends on the board    | Yes |
+| Convert Gerber to CNC files    | use [flatCam](http://flatcam.org/) (or similar) to export a gcode with the proper format | 3 minutes     | Yes |
+| Jog the machine to the starting point and change the bit | use gcode and the commands to set a relative origin, enable plane probing and change the bit | 5 minutes | Yes|
+| Start milling | Use the commands to start the route.cnc file** | 6 minutes for plane probing and 22 minutes for the example PCB(the loud part) | No|
+| Jog the machine to the starting point and change the bit | use gcode and the commands to set a relative origin, disable plane probing and change the bit| 3 minutes | Yes|
+| Start drilling | Start the drill.cnc** file | 8 minutes for the example PCB | No| 
+| Jog the machine to the starting point and change the bit | use gcode and the commands to set a relative origin and change the bit| 5 minutes | Yes|
+| Start cutting | Start the edge.cnc** file | 20 minutes for the PCB shown*| Yes |
+| Add UV mask | I would not advise making this on the CNC, I did try a bit  but it is not worth it time-wise | 10 minutes [(without CNC)](https://youtu.be/wvU2yyfH-XE?si=ILHJE20edIJDHiam) | Yes |  
+
+*I was afraid to go too fast, so I didn’t stress test this. I used 0.3 mm passes at 250 speed (31% of max) with a 2 mm bit not meant for PCBs. Test with caution.  
+**You can also run other file names. I made some specific names and commands to make it quicker for my testing. 
+
+Here are the PCBs I refer to  
+
+<img width="640" height="288" alt="image" src="https://github.com/user-attachments/assets/795ba771-b2aa-42c6-8f0c-7b0da3591444" />
+<img width="180" height="320" alt="image" src="https://github.com/user-attachments/assets/750a5886-00cc-42cc-824e-7d9b47f7383c" />  
+
+The third one was done by milling the solder mask, but I do not recommend it as it is quite unreliable. 
+
+Here are some standard results on FR1 board made with the latest release (note that you can get better results, but I tried to ensure reliability):
+![20250907_205925](https://github.com/user-attachments/assets/6f5c4cfd-22de-419e-ba62-a8ca8f0d729e)
+(they all work fine)
+
+## What to expect
+I REALLY do not want to deceive anyone, this machine is not perfect at all.  
+
+This was a project made to challenge myself and allow me to make PCBs at home, the process is a bit convoluted, the arduino code could be less clunky (even though I am limited by the Arduino Nano’s memory, I should migrate this project to a more capable board in the future).  
+
+When drilling holes they tend to be slightly off center, it might be due to some imperfections, it does not seem to stack over time tho. 
+In previous versions of the Z rails I had some problems losing some steps over long incisions but that is no longer the case.  
+For reference, this is a 50-minute incision, this is close to the maximum this machine can do
+
+Here is the board:  
+<img width="1201" height="918" alt="image" src="https://github.com/user-attachments/assets/5fbe073d-539b-4835-a83b-9799c2519f5d" />
+
+
+Due to the size of the board, I suggest cutting deeper to ensure proper isolation. This worked reasonably well, but I had to refine 5 pads with a box cutter. (I used –0.15 mm to be sure, that is why some traces are a bit deep, I might also suggest using a 0.2mm bit and not a 0.1mm bit, especially if you don't use a soldermask to avoid bridging while soldering).  
+
+There is also some kind of distortion (not related to lost steps) that causes some traces to deform, this is usually harmless unless it happens on the segment that closes the shape, to prevent this from causing problems I've added the "add squares" option to the patcher. It seems to work fine. 
+
+
+# Assembly
+Being a budget machine, it requires considerable effort on the user's part for assembly.  
+Additional hardware notes can be found [here](HARDWARE_NOTES.md).
+## Frame
+The frame is made of hollow PLA segments reinforced with M8 threaded rods and filled with concrete.  
+This creates a very rigid structure with decent tolerances, good vibration damping, and low cost. The M8 rods also help with assembly.  
+<img width="435" height="384" alt="image" src="https://github.com/user-attachments/assets/9d834906-fd3d-41d3-b579-b86fed3c607e" />
+<img width="301" height="342" alt="image" src="https://github.com/user-attachments/assets/0a4a1318-8cf1-455b-94ce-deca73f43f02" />
+<img width="359" height="301" alt="image" src="https://github.com/user-attachments/assets/e30da32b-471b-47de-95ca-91e0f61a9815" />
+
+## Axes
+Describing the assembly of each small piece in detail would be complex and not very clear. That’s why I prepared four files: Preview.blend, Preview_x.blend, Preview_y.blend, and Preview_z.blend—each containing all 3D printed pieces and hardware in their correct positions, with [color-coded](https://docs.google.com/spreadsheets/d/1UYvKP2MYEV8sfaGlQmCoOGCL_2WACBQjZGL0-ml8eyc/edit?gid=2135254340#gid=2135254340) hardware. 
+Apply grease to all screws and guides.
+Unfortunately, I am dumb enough to model in blender.  
+I didn’t find a better way to display the assembly, so you will need to [download Blender](https://www.blender.org/download/) (free) to view the files.  
+This also means I don’t have convenient CAD files for the project. Even the STL files come from messy Blender projects, so I will consider the STL files themselves as the source for licensing purposes.  
+<img width="321" height="288" alt="image" src="https://github.com/user-attachments/assets/fb206a9c-3215-41fb-9aa6-13b725eed116" />
+<img width="486" height="206" alt="image" src="https://github.com/user-attachments/assets/66115400-01d0-4332-8afb-8a9262f7b302" />
+<img width="336" height="282" alt="image" src="https://github.com/user-attachments/assets/1419acae-98ce-44d2-ba9b-e910e4a3c0b1" />
+<img width="228" height="233" alt="image" src="https://github.com/user-attachments/assets/b4b075bf-19ed-477a-8c75-959a1e54f7b3" />
+
+
+
+### Y axis
+Due to the way it is mounted this axis requires a bit of care, you'll have to adjust it so that the rails are pretty consistently spaced (use a caliper to check).
+
+### Bellows
+Unfortunately, this was a bit rushed.   
+You can print the bellows flat on your bed with a 0.12mm layer height.   
+This will result in a sheet that can easily be folded back and forth to make the bellows. I did not add some of the features to make them easier to detach from the plate, but they can be easily cut out.   
+[Here  you can find some more information on how I installed them.](Bellows.md)  
+
+## Electronics
+The electronics require some work, but it should not be a problem for anyone building PCBs.  
+Here is the list of boards I used:  
+3x ULN2003 stepper motor driver  
+1x micro SD card reader  
+1x Arduino Nano  
+1x LM2596 DC to DC Buck Converter module   
+1x relay module  
+1x custom board (see below)  
+1x custom board to distribute power (just a couple of lines of solder with all the cables going out to the various modules)
+1x metal M3x10cm washer used for the motor.  
+1x metal washer with a bigger diameter used on the bed.  
+
+-I power this with a computer power supply (the 12V line). I suggest using this type of power supply, as they can be obtained cheaply or even for free from old computers and online marketplaces such as eBay or Facebook marketplace.   
+-Power the ULN2003 with 12 V, along with the motor driver and the step-down module (if you use a computer PSU, you can simply connect the 5 V line).   
+-Set the step-down output to 5 V, and connect the Arduino, relay, and SD card boards to it.   
+-The relay is used to switch on and off the motor driver.      
+-The motor driver is connected to the motor with a flyback diode and large capacitors rated for more than 12 V.    
+
+This is the pinout of the Arduino:  
+
+| Arduino pin | Conn. | Arduino pin | Conn. |
+| :---------: | :---: | :---------: | :---: |
+|     TX1     |   NC   |     D13     |   SCK sd card board   |
+|     RX0     |   NC   |     3v3     |   NC   |
+|     RST     |   NC   |     REF     |   NC   |
+|     GND     |   OUT- stepdown   |      A0     |   MZ IN4   |
+|      D2     |   MY IN4   |      A1     |   MZ IN3   |
+|      D3     |   MY IN3   |      A2     |   MZ IN2   |
+|      D4     |   MY IN2   |      A3     |   MZ IN1   |
+|      D5     |   MY IN1   |      A4     |   Relay S |
+|      D6     |   MX IN4   |      A5     |   Z2 enable pin custom board   |
+|      D7     |   MX IN3   |      A6     |   switch pin on custom board  |
+|      D8     |   MX IN2   |      A7     |   Z2 pin on custom board |
+|      D9     |   MX IN1   |      5V     |   OUT+ stepdown   |
+|     D10     |   CS sd card board   |     RST     |   NC   |
+|     D11     |   MOSI sd card board   |     GND     |   NC   |
+|     D12     |   MISO sd card board   |     Vin     |   NC   |  
+
+NC = not connected  
+MX = ULN2003 connected to the x motor  
+MY = ULN2003 connected to the y motor   
+MZ = ULN2003 connected to the z motor   
+
+To check all the limit switches and the contact between the board and the motor with a few pins, I have made a little custom board on perfboard.  
+Here is the schematic:  
+<img width="640" height="429" alt="image" src="https://github.com/user-attachments/assets/55893924-4c61-4fee-ae61-7b21390d2746" />   
+I suggest adding connectors (I used JST connectors) at the positions indicated by the red boxes.  
+
+I mounted the electronics with my [CMS](https://www.printables.com/@AgasasWorksho_391302/collections/863243) system on a printed plate (that you can find in the files)  
+
+<img width="1280" height="576" alt="image" src="https://github.com/user-attachments/assets/ba09b5ae-814f-45e1-bd35-952cb0c2a404" />  
+
+Alternatively, you could put together the circuit on perfboard like shown here:
+<img width="640" height="288" alt="image" src="https://github.com/user-attachments/assets/79159e76-e36b-4f37-a818-8d021695b795" />   
+Using the kicad files might help making this. 
+
+Once the machine is ready, you could mill your own board:   
+<img width="600" height="459" alt="image" src="https://github.com/user-attachments/assets/10f9088a-cfac-4da2-a077-0e1ce83d5ca2" />  
+This board will be uploaded under the name "single sided PCB".  
+Here it is mounted and working:  
+<img width="640" height="268" alt="image" src="https://github.com/user-attachments/assets/03f97e6e-92c0-4e57-9ccd-806ff8d77338" />   
+I would advice using the board from PCBway below as a reference for the components, in alternative you can use the kicad file.  
+
+
+Probably the most convenient way of doing this would be to buy one from [PCBWay](https://www.pcbway.com/) from the start, in fact they kindly sponsored me and provided me with some boards to test and I was really happy with the product, they are really well made quality boards (and I know a thing or two about making PCBs at this point) here they are, I will upload them as "double sided PCB"   
+<img width="640" height="288" alt="image" src="https://github.com/user-attachments/assets/3f4bb3ee-7eda-4ba4-8b43-9eda33c88782" />  
+<img width="590" height="540" alt="image" src="https://github.com/user-attachments/assets/4a25b12c-f70d-4b83-82dc-4d7651c2b5e5" />    
+Note that I messed up the capacitor silkscreen and it's flipped, the files I upload will be corrected.   
+[Here you can find the list of components.](https://docs.google.com/spreadsheets/d/1UYvKP2MYEV8sfaGlQmCoOGCL_2WACBQjZGL0-ml8eyc/edit?gid=390472007#gid=390472007)  
+
+How the washers are  mounted:   
+<img width="408" height="339" alt="image" src="https://github.com/user-attachments/assets/01417ccc-a4d2-4eb2-bcac-8ee069456f55" />   
+You can solder tin to steel; it will flow nicely once the washer reaches a sufficient temperature. This may take some time, during which the solder will not adhere.  
+
+# Using the machine
+The code does the minimum required to make the machine work. It can read some G-code, probe the plane to compensate for a skewed board or other imperfections. Here is the list of commands:  
+1 + {Gcode} = executes that Gcode.  
+2 = Saves the current X, Y, Z coordinates to the offset, and considers the current position as the origin.  
+3 = writes in the console the X,Y,Z coordinates, the offsets and some more stuff.  
+4 = lowers the Z axis until it finds contact.  
+5 = starts the "route.cnc" file.  
+50 + "file_name.cnc" = starts the "file_name.cnc" file. For example, 50 route.cnc is equivalent to command 5 (max 16 characters).
+51 = starts the "mask.cnc" file. It does not disable plane probing and does not perform probing; you need to have done the previous probing. (Do not shut it down after route.cnc).
+52 = starts  the "drill.cnc" file, disables plane probing.  
+53 = starts  the "cut.cnc" file, disables plane probing.  
+6 = tries to initiate the SD card (also done at start).  
+7 = prints SD card content.   
+8 = homes the Z axis alone.   
+9 = toggles plane probing.   
+10 = toggles debug mode, which enables moving without homing.   
+11 = toggles enabled and disabled holding torque.  
+
+❕Note that the 51/52/53 commands are already tailored for their purpose and should not need you to toggle plane probing, if you use the 50 command you must disable the plane probing if you don't want it (for example if you decided to make a different drill_1.cnc file make sure to have plane probing off).
+
+Change relative system  
+21 = save solder mask relative system.  
+22 = save drill relative system.  
+23  = save cutting relative system.  
+211 = load solder mask relative system.  
+221 = load drill relative system.   
+231 = load cutting relative system.  
+
+The machine currently cannot change spindle speed. You can manually adjust it on some motor drivers. I always run it at 100%. I plan to update this; it should be fairly simple, but I’m burned out.  
+The machine currently only recognizes  
+G00/G01  (movement)  
+M03/M05  (spindle on/off)  
+G28  (home all axes)  
+G220 (change stepper speed, for example "G220 80" (or "G220 S80 it's the same) will set the G01 speed as 80% of the G00 speed which is considered the fastest speed (can't go over 100% or under 0%)  
+I did attempt some extra features, but the Arduino Nano is already running out of memory.  
+
+## How to prepare the files
+- Create the gerber file.  
+- Import the gerber files of the engraving, holes and cuts in flatcam.  
+- Select the engraving, go to isolation routing, and set the bit thickness (I use 0.1 mm, sometimes 0.2 mm). Generate the geometry and set the bit as a C-bit (even if it is actually a V-bit). Then select a cutting depth. Different boards may require different values, so you will need to experiment. On FR1 boards, a depth of -0.1 mm produced good results.   
+- Set the end move and tool change Z to a low value to avoid exceeding the limits, then generate the CNC object and save the file as route.cnc. Open the CNC_file_patcher I provided and drag the file onto it; it will be patched for this machine. (Note: you can name the file anything if you plan to use the 50 command, up to 16 characters.)    
+- Select the drill file, set the tool change Z and end move to 3 mm, and set the cutting depth slightly less than the PCB thickness (I use -1.35 mm on 1.4 mm boards). This prevents damaging the bed, but you will need to complete the holes manually. It is a simple and quick task. Save the file as drill.cnc (you can choose any name if you use the 50 command).   
+-  Select the edge file, set the bit diameter, and use the same depth as for the drill file. I used -0.3 mm passes to avoid stressing the machine. Export it as edge.cnc (you can name it freely if you use the 50 command).   
+-  Select the mask file, set the bit diameter, and use the paint tool. Set an offset—0.5 mm is recommended—but check that the mask is fully cut out given your bit diameter. The software will skip areas that are too small for the bit plus offset. Export the file as mask.cnc (you can name it freely if you use the 50 command).    
+
+
+## How to operate the CNC  
+‼️‼️You MUST wear personal protective equipment (PPE) when operating this machine, including eye protection, ear protection, and a respirator mask (especially for edge cutting and drilling). Work in a well-ventilated area, particularly when using FR4 boards or performing cutting operations (I don't even really recommend cutting FR4, just engraving and milling). 
+ 
+Use commands prefixed with M only if you plan to mill the solder mask, and N only if you do not plan to mill it. Note: milling the solder mask is not recommended.    
+
+!!As it stands, disconnecting the computer and reconnecting will lead to the Arduino resetting and losing the ability to keep going with what you were doing. Use a reliable method; I found out my phone is great at this; it can go into standby and still not lose the serial connection, and thus not reset the Arduino. 
+
+- 1) Power up the machine with the external power supply and connect your computer or phone.  
+- 2) Secure a board with all bolts, make sure the bed washer is tight. Forgetting this may damage the bit.   
+- 3) Before moving, you must home the machine (it will not accept movement if not homed). Send the following over serial at 9600 baud: "1 G28". Here, 1 indicates that the following command is G-code, and G28 is the “home all axes” command.    
+- 4) Jog the machine to the desired starting position using G00 (rapid movement). A good starting point is the bottom-left corner, approximately at X20 Y20. For example: "1 G00 X20 Y20".  
+- M5.1.1) Secure the mask milling bit and use the 4 command to bring down the motor to the copperclad board. Save the mask relative system with 21 and home the Z axis with the 8 command.   
+- M5.1.2) Secure the drilling bit and use the 4 command to bring down the motor to the copperclad board. Save the drill relative system with 22 and home the Z axis with the 8 command.  
+- M5.1.3) Secure the cutting bit and use the 4 command to bring down the motor to the copperclad board. Save the cutting relative system with 23 and home the Z axis with the 8 command.  
+- 5.2) Secure the engraving bit and use the 4 command to bring down the motor to the copperclad board. Save the current position as a new origin with the 2 command.
+- 6) Enable plane probing with the 9 command. It should say "Prob:on" in the console.  
+- 7) Start the engraving process with the 5 command. (or 50 + file name if you named the file differently)
+- 8) Wait for the engraving to finish, in my experience, it is relatively safe and hands off but really loud.  
+- 9) Remove the dust with a mini vacuum cleaner.  
+- M10) Mount the mask milling bit. Load the relative system with command 211. Go to the starting point. Since you saved the relative system in step 5.2, use "1 G00 X0 Y0".   
+- M11) Start the mask milling with 51, set the motor speed to 3% (to mill the mask you will need to be able to control the motor).  
+- M12) Wait for the mask milling to compòete. This is also hands off, less loud tho.
+- 13) Mount the drilling bit, set the speed to max again, disable plane probing with the 9 command.  
+- M14) Load the drill relative system with 221 and go back to the origin (1 G00 X0 Y0).  
+- N14) Go back to the origin (1 G00 X0 Y0). Lower the z axis with the 4 command and set a new relative system with the 2 command.  
+- 15) Start the drilling process with the 52 command.
+- 16) Wait for the drilling to finish. In my experience it is relatively safe and hands off but really loud.  
+- 17) Remove dust.  
+- 18) Secure the cutting bit.  
+- M19) Load the cutting relative system with command 231. Set the motor speed to 30% (M220 30) and return to the origin using "1 G00 X0 Y0".  
+- N19) Lower the z axis with the 4 command and set a new relative system with the 2 command.  
+- 20) Start the cutting process with the 53 command.  
+- 21) Wait for the cut to finish. While you're at it keep an eye on it, and remove some dust. I suggest moving it with a brush and vacuuming it off the board.
+- 23) Dismount the board. Scrub it with a hard brush, check continuity, drill out any remaining holes and complete the cut with a box cutter.
+- N24) Add the solder mask like in [this video](https://youtu.be/wvU2yyfH-XE?si=ILHJE20edIJDHiam).
+
+❕❕Every time you secure a new bit you will have to check for the runout. I just look at it and spin it slowly to check a bit, this is very finicky; it will depend on the quality of your coupler or collet.  
+I still fight a lot with my coupler to get it right, sometimes it looks fine but it isn't, it's the biggest problem for me and it would be solved just by finding good quality 3.17mm couplers, I yet have to find them tho.  
+You can find some more details on this [here](HARDWARE_NOTES.md).
+
+## Post processing
+I scrub the board vigorously with a hard brush, which usually suffices. In some cases, I used 500-grit sandpaper (for metals) to fix poorly isolated pads. The process takes less than a minute in total.  
+I do advise checking for continuity on your board always.  
+In the worst-case scenario, you can use an X-Acto knife or box cutter to fix traces. I have worked extensively to avoid this, so it should not be necessary most of the times.  
+Soldering without a solder mask is a harrowing process, so I would advise adding it as shown [here](https://youtu.be/wvU2yyfH-XE?si=ILHJE20edIJDHiam). I am not satisfied with the results of milling the mask myself, although performance depends greatly on the quality of the spring-loaded bit.  
+
+
+## File patcher
+The file patcher accepts a file (simply drag and drop it onto the window), patches it, and overwrites it with the new version. Currently, it has four features that you can toggle:  
+- Split segments: subdivides long segments into shorter ones (maximum 2 mm). This improves plane compensation, as the software currently creates four planes to approximate the board. Long segments spanning multiple planes can cause inaccuracies.  
+- Add overlap: adds some overlap between the end of a trace and its start to improve the likelihood of correct isolation. Copper can sometimes deform and leave a bridge.
+- Add squares: Add squares: due to some errors (possibly bit flexing or play in the axis), the tool may fail to properly reconnect when closing a shape. To improve reliability, this option adds a very small square at the end to ensure a proper cut.
+- Extra squares: makes the square bigger to make sure. If they are problematic, the small squares are usually enough.
+- Simplify shapes: this could speed up the cut a bit.  
+Recommended settings are pre-checked by default.  
+I plan to add the ability to customize the squares and other features in a future update.  
+
+# Plans for upgrades
+I decided to finalize the current version of the project to take a break, but I still have many improvements I want to implement.  
+Here are some potential upgrades:  
+1. One could tinker with the speeds, I pushed the x and y motors quite a bit already but I did not consider the z speed to be that impactful on the time. 
+2. Considering the little additional cost of NEMA motors, one could decide to mount a pancake NEMA17 motor to the Z and X axis and standard NEMA17 to the Y axis. The code should be fairly simple; I would mostly care about fitting nemas to X and Y and try to get a better speed.
+3. I've tested quite a bit with milling the solder mask and did not have perfect results. I currently suspect my DIY bit is not up to the task. I should investigate further but it felt like a fool's errand, knowing the other way of adding the solder mask.
+4. I've fitted the bellows at the end and did not do the best job. I would love to improve on them.
+5. Currently, the spindle is very loud. I'd like to figure out if I can do something about it.
+6. The current spindle speed regulation is crude. If you skip milling the mask, a single speed suffices. Adding an H-bridge would simplify speed control (the motor draws about 2.5 A).  
+7. I would like to test different types of plane probing to maybe make it quicker (it currently takes a total of 25 points 5 at each spot, maybe I could do just 1 for each spot).  
+8. I did not tinker enough with the cutting speeds because I was a bit afraid of wrecking the machine at the finish line. I'll have to test a bit after I recover from burnout. 
+9. I might want to migrate the code to a better microcontroller. I used arduino to be more accessible but its limitations did show.
+10. I tinkered with adding a saving system to avoid homing all the times and to avoid losing progress if one ended up resetting the Arduino by accident. The problem was the arduino memory that was running out.
+11. If I do end up changing some of the above, I would probably implement some extra G code, like spindle speed.
+12. Find the best working coupler to get good alignment every time; it's the biggest problem for me.
+13. I could also consider adding alignment holes to the bed to try implementing double-sided boards.
+
+# Disclaimer
+This machine involves mechanical, electrical, and operational risks. I strongly recommend using appropriate personal protective equipment (PPE mentioned above) and ensuring proper ventilation during operation.  
+Keep your hands and body parts away from moving axes and the cutting tool, as the system can generate significant force.  
+Be careful when wiring the power supply, especially when working with mains voltage.
+
+This project is not certified for compliance with any safety or regulatory standards. By building, modifying, or operating this machine, you acknowledge and accept that you do so entirely at your own risk.
+I shall not be held liable for any injury, damage, loss, or legal issues resulting from the use or misuse of this project.
+
+## Extra
+- This machine operates on two sizes of boards, which are 5x7 and 10x7. [I've made a little jig to score and snap the boards](https://www.printables.com/model/1377196-107-pcb-splitter), it works well with FR1, not too well with FR4 (it isn't impossible tho).  
+- I did attempt some backlash compensation with disappointing results; the current code still has the remains of that (but the parameters are set to 0).  
