@@ -215,3 +215,4 @@ I'll suggest them here:
 9. I tinkered with adding a saving system to avoid homing all the times and to avoid losing progress if one ended up resetting the Arduino by accident, the problem was the arduino memory that was running out.
 10. If I do end up changing some of the above I would probably implement some extra G code like spindle speed.
 11. Find the best working coupler to get good alignment every time, it's the biggest bottleneck.
+12. I could also consider adding alignment holes to the bed to try implementing double sided boards.  
