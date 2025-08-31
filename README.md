@@ -218,4 +218,4 @@ I'll suggest them here:
 12. I could also consider adding alignment holes to the bed to try implementing double sided boards.
 
 ## Extra
-This machine operates on two sizes of boards, which are 5x7 and 10x7. I've made a little jig to score and snap the boards](https://www.printables.com/model/1377196-107-pcb-splitter), it works well with FR1, not too well with FR4 (it isn't impossible tho) 
+This machine operates on two sizes of boards, which are 5x7 and 10x7. [I've made a little jig to score and snap the boards](https://www.printables.com/model/1377196-107-pcb-splitter), it works well with FR1, not too well with FR4 (it isn't impossible tho) 
