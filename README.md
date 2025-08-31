@@ -164,7 +164,7 @@ I did attempt some extra features but the arduino nano is running out of memory 
 
 
 ## How to operate the CNC  
-‼️‼You MUST wear protective equipment when dealing with this machine, eye protection, ear protection, a respirator mask and work in a ventilated area ESPECIALLY with FR4 boards and during cutting, I don't even recommend cutting edges for FR4 board, I would advise only to cut edges on FR1 board.   
+‼️‼You MUST wear protective equipment when dealing with this machine, eye protection, ear protection, a respirator mask and work in a ventilated area ESPECIALLY with FR4 boards and during cutting, I don't even recommend cutting edges for FR4 board, I would advise only to cut edges on FR1 boards.   
  
 Follow the commands with the M only if you're also planning on milling the soldermask, N only if you're not planning on milling the solder mask; **I do not recommend it**.  
 !!As it stands, disconnecting the computer and reconnecting will lead to the Arduino resetting and losing the ability to keep going with what you were doing. Use a reliable method, I found out my phone is great at this; it can go in standby and still not lose the serial connection and thus not reset the Arduino. 
@@ -215,4 +215,7 @@ I'll suggest them here:
 9. I tinkered with adding a saving system to avoid homing all the times and to avoid losing progress if one ended up resetting the Arduino by accident, the problem was the arduino memory that was running out.
 10. If I do end up changing some of the above I would probably implement some extra G code like spindle speed.
 11. Find the best working coupler to get good alignment every time, it's the biggest bottleneck.
-12. I could also consider adding alignment holes to the bed to try implementing double sided boards.  
+12. I could also consider adding alignment holes to the bed to try implementing double sided boards.
+
+## Extra
+This machine operates on two sizes of boards, which are 5x7 and 10x7. I've made a little jig to score and snap the boards](https://www.printables.com/model/1377196-107-pcb-splitter), it works well with FR1, not too well with FR4 (it isn't impossible tho) 
