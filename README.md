@@ -49,7 +49,7 @@ The frame is made out of hollow PLA segments reinforced with M8 threaded rods an
 <img width="359" height="301" alt="image" src="https://github.com/user-attachments/assets/e30da32b-471b-47de-95ca-91e0f61a9815" />
 
 ## Axes
-It would be quite complex and wasteful to painstakingly describe the assembly of each little piece; it also would not be that easy to understand, which is why I decided to prepare 4 files called Preview.blend, Preview_x.blend, Preview_y.blend, and Preview_z.blend, each containing every 3d printed piece and hardware positioned in the right place and with color-coded hardware.  
+It would be quite complex and wasteful to painstakingly describe the assembly of each little piece; it also would not be that easy to understand, which is why I decided to prepare 4 files called Preview.blend, Preview_x.blend, Preview_y.blend, and Preview_z.blend, each containing every 3d printed piece and hardware positioned in the right place and with [color coded](https://docs.google.com/spreadsheets/d/1UYvKP2MYEV8sfaGlQmCoOGCL_2WACBQjZGL0-ml8eyc/edit?gid=2135254340#gid=2135254340) hardware.  
 Unfortunately I am dumb enough to model in blender. I did not find a much better way of displaying this so you will have to [download Blender](https://www.blender.org/download/) (which is free) to access those files.  
 <img width="325" height="335" alt="image" src="https://github.com/user-attachments/assets/9df7ed10-f0a5-4033-9d78-faac04b87ae6" />
 <img width="486" height="206" alt="image" src="https://github.com/user-attachments/assets/66115400-01d0-4332-8afb-8a9262f7b302" />
