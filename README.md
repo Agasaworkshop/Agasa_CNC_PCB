@@ -174,7 +174,7 @@ I did attempt some extra features but the arduino nano is running out of memory 
 
 
 ## How to operate the CNC  
-‼️‼You MUST wear protective equipment when dealing with this machine, eye protection, ear protection, a respirator mask and work in a well ventilated area ESPECIALLY with FR4 boards and during cutting, I don't even recommend cutting edges for FR4 board, I would advise only to cut edges on FR1 boards.   
+‼️‼️You MUST wear protective equipment when dealing with this machine, eye protection, ear protection, a respirator mask and work in a well ventilated area ESPECIALLY with FR4 boards and during cutting, I don't even recommend cutting edges for FR4 board, I would advise only to cut edges on FR1 boards.   
  
 Follow the commands with the M only if you're also planning on milling the soldermask, N only if you're not planning on milling the solder mask; **I do not recommend it**.  
 !!As it stands, disconnecting the computer and reconnecting will lead to the Arduino resetting and losing the ability to keep going with what you were doing. Use a reliable method, I found out my phone is great at this; it can go in standby and still not lose the serial connection and thus not reset the Arduino. 
