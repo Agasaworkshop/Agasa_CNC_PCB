@@ -9,6 +9,16 @@ I've decided to make this CNC from spare parts to see if I was up to the challen
 
 This project aims at making an affordable CNC that can be built with many common parts you might already have lying around: [here you can find the bill of materials.](https://docs.google.com/spreadsheets/d/1UYvKP2MYEV8sfaGlQmCoOGCL_2WACBQjZGL0-ml8eyc/edit?usp=sharing)
 
+This project also needs some tools like:  
+- A soldering iron
+- Something to cut M8 and M4 threaded rod like a hacksaw or Dremel (or even a bolt cutter for the M4 rod)
+- M3 and M1 allen key (usually provided with the screw sets and collet).
+- M8 wrench.
+- Common household supplies like tweezers and scissors.
+- A drill (even the weak ones) to drive the M8 rods into PLA pieces and drill.
+- A hammer + small screwdriver (it is sometimes useful to drive the M4 rods into the PLA)
+- Phillips screwdrivers for the screw terminals of the relay and motor driver   
+
 This machine is made to accept two common formats of copperclad board I can find online, which are 10x7cm and 5x7cm.
 It is a relatively slow machine ([but it could be improved](https://github.com/Agasaworkshop/Agasa_CNC_PCB?tab=readme-ov-file#plans-for-upgrades)), and it can achieve some decent results but it also depends on the quality of the board itself.  
 It is also a very loud machine and does require eye protection, ear protection and a respirator mask.  
