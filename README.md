@@ -220,12 +220,13 @@ I'll suggest them here:
 4. I've fitted the bellows at the end and did not do the best job, I would love to improve on them.
 5. Currently, the spindle is very loud. I'd like to figure out if I can do something about it.
 6. The current system of regulating spindle speed is a bit crude due to the fact that, if you avoid milling the mask, you can just have 1 speed, but fitting an H-bridge would be a no-brainer (the motor should draw around 2.5A).
-7. I did not tinker enough with the cutting speeds because I was a bit afraid of wrecking the machine at the finish line, I'll have to test a bit after I recover from burnout. 
-8. I might want to migrate the code to a better microcontroller, I used arduino to be more accessible but its limitations did show.
-9. I tinkered with adding a saving system to avoid homing all the times and to avoid losing progress if one ended up resetting the Arduino by accident, the problem was the arduino memory that was running out.
-10. If I do end up changing some of the above I would probably implement some extra G code like spindle speed.
-11. Find the best working coupler to get good alignment every time, it's the biggest bottleneck.
-12. I could also consider adding alignment holes to the bed to try implementing double sided boards.
+7. I would like to test different types of plane probing to maybe make it quicker (it currently takes a total of 25 points 5 at each spot, maybe I could do just 1 for each spot) 
+8. I did not tinker enough with the cutting speeds because I was a bit afraid of wrecking the machine at the finish line, I'll have to test a bit after I recover from burnout. 
+9. I might want to migrate the code to a better microcontroller, I used arduino to be more accessible but its limitations did show.
+10. I tinkered with adding a saving system to avoid homing all the times and to avoid losing progress if one ended up resetting the Arduino by accident, the problem was the arduino memory that was running out.
+11. If I do end up changing some of the above I would probably implement some extra G code like spindle speed.
+12. Find the best working coupler to get good alignment every time, it's the biggest bottleneck.
+13. I could also consider adding alignment holes to the bed to try implementing double sided boards.
 
 ## Extra
 This machine operates on two sizes of boards, which are 5x7 and 10x7. [I've made a little jig to score and snap the boards](https://www.printables.com/model/1377196-107-pcb-splitter), it works well with FR1, not too well with FR4 (it isn't impossible tho) 
