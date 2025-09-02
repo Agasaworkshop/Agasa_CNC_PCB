@@ -174,7 +174,7 @@ I did attempt some extra features but the arduino nano is running out of memory 
 
 
 ## How to operate the CNC  
-‼️‼️You MUST wear protective equipment when dealing with this machine, eye protection, ear protection, a respirator mask and work in a well ventilated area ESPECIALLY with FR4 boards and during cutting, I don't even recommend cutting edges for FR4 board, I would advise only to cut edges on FR1 boards.   
+‼️‼️You MUST wear protective equipment (PPE) when dealing with this machine, eye protection, ear protection, a respirator mask and work in a well ventilated area ESPECIALLY with FR4 boards and during cutting, I don't even recommend cutting edges for FR4 board, I would advise only to cut edges on FR1 boards.   
  
 Follow the commands with the M only if you're also planning on milling the soldermask, N only if you're not planning on milling the solder mask; **I do not recommend it**.  
 !!As it stands, disconnecting the computer and reconnecting will lead to the Arduino resetting and losing the ability to keep going with what you were doing. Use a reliable method, I found out my phone is great at this; it can go in standby and still not lose the serial connection and thus not reset the Arduino. 
@@ -227,6 +227,13 @@ I'll suggest them here:
 11. If I do end up changing some of the above I would probably implement some extra G code like spindle speed.
 12. Find the best working coupler to get good alignment every time, it's the biggest bottleneck.
 13. I could also consider adding alignment holes to the bed to try implementing double sided boards.
+
+## Disclamer
+This machine involves mechanical, electrical, and operational risks. I strongly recommend using appropriate personal protective equipment (the above mentioned PPE) and ensuring proper ventilation during operation. Keep your hands and body parts away from moving axes and the cutting tool, as the system can generate significant force. Be careful when wiring the power supply, especially when working with mains voltage.
+
+This project is not certified for compliance with any safety or regulatory standards. By building, modifying, or operating this machine, you acknowledge and accept that you do so entirely at your own risk.
+
+I shall not be held liable for any injury, damage, loss, or legal issues resulting from the use or misuse of this project.
 
 ## Extra
 This machine operates on two sizes of boards, which are 5x7 and 10x7. [I've made a little jig to score and snap the boards](https://www.printables.com/model/1377196-107-pcb-splitter), it works well with FR1, not too well with FR4 (it isn't impossible tho) 
