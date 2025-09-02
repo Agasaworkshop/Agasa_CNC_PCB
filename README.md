@@ -17,11 +17,12 @@ This project also needs some tools like:
 - Common household supplies like tweezers and scissors.
 - A drill (even the weak ones) to drive the M8 rods into PLA pieces and drill.
 - A hammer + small screwdriver (it is sometimes useful to drive the M4 rods into the PLA)
-- Phillips screwdrivers for the screw terminals of the relay and motor driver   
+- Phillips screwdrivers for the screw terminals of the relay and motor driver
+- A hard brush to clean up the boards after milling. 
 
 This machine is made to accept two common formats of copperclad board I can find online, which are 10x7cm and 5x7cm.
 It is a relatively slow machine ([but it could be improved](https://github.com/Agasaworkshop/Agasa_CNC_PCB?tab=readme-ov-file#plans-for-upgrades)), and it can achieve some decent results but it also depends on the quality of the board itself.  
-It is also a very loud machine and does require eye protection, ear protection and a respirator mask.  
+It is also a very loud machine and requires eye protection, ear protection, and a respirator mask.  
 
 
 Here is a quick preview of the process of making a board (more info below):
@@ -166,7 +167,7 @@ I did attempt some extra features but the arduino nano is running out of memory 
 ## How to prepare the files
 - Create the gerber file.  
 - Import the gerber files of the engraving, holes and cuts in flatcam.  
-- Select the engraving, go to isolation routing, set the thickness of the bit, I use 0.1mm, generate the geometry and set the bit as a C bit (even if it is a V bit), select a cutting depth, I found that different boards call for different values so you will have to experiment a bit, I found good results on FR1 boards with a depth of -0.07mm (even -0.05 should cut but I exceeded a bit to be sure), I had excelent results on some FR4 boards with around -0.02, your mileage may vary.  
+- Select the engraving, go to isolation routing, set the thickness of the bit, I use 0.1mm, generate the geometry and set the bit as a C bit (even if it is a V bit), select a cutting depth, I found that different boards call for different values so you will have to experiment a bit, I found good results on FR1 boards with a depth of -0.07mm, I had excelent results on some FR4 boards with around -0.02, your mileage may vary.  
 - Set the end move and tool change Z to a low value (so that you do not exceed the limit) and generate the cnc object, save the file as route.cnc, open the CNC_file_patcher I provvided and drag and drop the file onto it, it will get patched for this machine.
 - Select the drill file, set tool change z and end move to 3mm and the cutting depth a bit short of the PCB thickness, i use -1.35mm on 1.4mm boards, this will ensure you do not ruin the bed, it will also mean that you'll have to complete the holes yourself but it is a very easy and quick job, save the file as drill.cnc.  
 -  Select the edge  file, set the bit diameter, set the depth to the same you chose for the drill file, I did -0.3mm passes max, I did not want to stress it too much, export it as edge.cnc.
