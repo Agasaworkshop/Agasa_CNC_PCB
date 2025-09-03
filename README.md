@@ -1,3 +1,5 @@
+# This is currently a WIP, I still have to fix some stuff
+
 # PCB MILLING CNC OVERVIEW  
 
 <img width="1236" height="574" alt="image" src="https://github.com/user-attachments/assets/af06d7e1-19c9-42f3-aa06-0edbf7c719b0" />
