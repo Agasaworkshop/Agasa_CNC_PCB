@@ -56,6 +56,10 @@ Here are some standard results on FR1 board made with the latest release (note t
 ![20250907_205925](https://github.com/user-attachments/assets/6f5c4cfd-22de-419e-ba62-a8ca8f0d729e)
 (they all work fine)
 
+## What to expect
+This was a project made to challenge myself and allow me to make PCBs at home, it seems to work kinda fine, it is not perfect tho, the process is a bit convoluted, the arduino code could be less cluncky (even tho I am limited by the arduino nano memory, I should migrate this project to a more capable board in the future).  
+The end result is interesting, the boards are functional, the spacing of the pads is consistent enough for the UV mask(for the solder mask) to line up properly but it does seem to have some kind of distortion that I would attribute to either play in the X and Y axis or the bit flexing a bit, I have tried to mitigate this a bit but with little success, the board works because I added some extra features to make the machine reliable but it might mangle a bit some shapes. I do not think it is missing steps because I can run the same code (that presents this distortion) twice on the same board and have the lines perfectly overlap. The pattern does not seem to degenerate over time (so it does not seem like it's losing steps). 
+The holes also do not come out perfectly centered, not sure why, but it's not a big deal, ICs still fit more than fine.
 
 # Assembly
 Being a budget machine, it requires considerable effort on the user's part for assembly.
