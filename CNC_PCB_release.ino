@@ -64,9 +64,9 @@ const float max_y = 92;
 const float min_z = -21.5;
 int strikes = 0; 
 bool x_backlash = false; bool y_backlash = false; bool z_backlash = false; //indicates the last rotation: to the switch = false, away from the switch is true (away is negative ->true, towards is positive ->false)
-const long x_m_backlash = -8; //i segni sono un po' strani, il plane probing tecnicamente in x e y non lo usa, non è così grave credo, è un po' intricato da fixxare
-const long y_m_backlash = -8;
-const long z_m_backlash = 0;
+const long x_m_backlash = 0; //i segni sono un po' strani, il plane probing tecnicamente in x e y non lo usa, non è così grave credo, è un po' intricato da fixxare
+const long y_m_backlash = 0; //-8
+const long z_m_backlash = 0; //-8
 
 
 long offset_x_mask = 0; long offset_y_mask = 0; long offset_z_mask = 0; 
@@ -78,7 +78,7 @@ float plane_coefficients1[3], plane_coefficients2[3],plane_coefficients3[3], pla
 const int x_y_speed0 = 800; //veloce era 500
 int x_y_speed1 = 800; // 250
 const int z_speed0 = 500; //500
-const int z_speed1 = 200; //140
+const int z_speed1 = 140; //140
 
 void setup() {
   pinMode(A4, OUTPUT); //relé
@@ -112,12 +112,12 @@ void loop() {
   if (Serial.available()) {
     int a = Serial.parseInt();
     if (a == 1) {
-      String command = Serial.readString();
+      String command = Serial.readString(); //I should really just ditch the string but I'm lazy
       command.trim();
       char command_arr[40];
       command.toCharArray(command_arr, 40);
       readline(command_arr);
-    }
+    }else
 
     if (a == 2) {
       offset_x = offset_x -(stepper_x.currentPosition());
@@ -126,26 +126,26 @@ void loop() {
       stepper_x.setCurrentPosition(0);
       stepper_y.setCurrentPosition(0);
       stepper_z.setCurrentPosition(0);
-    }
+    }else
     
     if (a == 21) {
       offset_x_mask = offset_x - (stepper_x.currentPosition());
       offset_y_mask = offset_y - (stepper_y.currentPosition());
       offset_z_mask = offset_z + (stepper_z.currentPosition());
       Serial.print(F("y"));
-    }
+    }else
     if (a == 22) {
       offset_x_drill = offset_x - (stepper_x.currentPosition());
       offset_y_drill = offset_y - (stepper_y.currentPosition());
       offset_z_drill = offset_z + (stepper_z.currentPosition());
       Serial.print(F("y"));
-    }
+    } else
     if (a == 23) {
       offset_x_edge = offset_x - (stepper_x.currentPosition());
       offset_y_edge = offset_y - (stepper_y.currentPosition());
       offset_z_edge = offset_z + (stepper_z.currentPosition());
       Serial.print(F("y"));
-    }
+    }else
 
     if (a == 211) {
       long real_pos_x = offset_x - stepper_x.currentPosition();
@@ -160,7 +160,7 @@ void loop() {
       offset_y = offset_y_mask;
       offset_z = offset_z_mask;
 
-    }
+    }else
     if (a == 221) {
       long real_pos_x = offset_x - stepper_x.currentPosition();
       stepper_x.setCurrentPosition(-real_pos_x + offset_x_drill);
@@ -174,7 +174,7 @@ void loop() {
       offset_x = offset_x_drill;
       offset_y = offset_y_drill;
       offset_z = offset_z_drill;
-    }
+    }else
     if (a == 231) {
       long real_pos_x = offset_x - stepper_x.currentPosition();
       stepper_x.setCurrentPosition(-real_pos_x + offset_x_edge);
@@ -188,7 +188,7 @@ void loop() {
       offset_x = offset_x_edge;
       offset_y = offset_y_edge;
       offset_z = offset_z_edge;
-    }
+    }else
 
     if (a == 3) {
       float x = (float(stepper_x.currentPosition())/steps_per_mm_xy);  
@@ -209,14 +209,14 @@ void loop() {
       Serial.println(z + float(float(offset_z)/steps_per_mm_z));
       Serial.print(F("stk:"));
       Serial.println(strikes);
-    }
+    }else
     if (a == 4) {
       if (!enabled) {
         Serial.print(F("\n mtr dis"));
         return;
       }
       home_z2();
-    }
+    }else
     if (a ==5) {
       if (!enabled) {
         Serial.print(F("\n mtr dis"));
@@ -231,40 +231,47 @@ void loop() {
       find_plane(plane_coefficients3, 2);
       find_plane(plane_coefficients4, 3);
       }
-      file_read(1);
+      file_read("route.cnc");
+    } else
+    if (a == 50) {
+      String path = Serial.readString(); //I should really just ditch the string but I'm lazy
+      path.trim();
+      char path_arr[16];
+      path.toCharArray(path_arr, 16);
+      file_read(path_arr);
     }
     if (a == 52) {
       if (!enabled) {
         Serial.print(F("\n mtr dis"));
         return;
       }
-      file_read(2);
-    }
+      file_read("drill.cnc");
+    } else
     if (a == 51) {
       if (!enabled) {
         Serial.print(F("\n mtr dis"));
         return;
       }
-      file_read(3);
-    }
+      file_read("mask.cnc");
+    } else
     if (a == 53) {
       if (!enabled) {
         Serial.print(F("\n mtr dis"));
         return;
       }
-      file_read(4);
-    }
+      file_read("edge.cnc");
+    } else
     if (a == 6) {
       if (!SD.begin(10))
         Serial.println(F("SD f"));
-    }
+    } else
     if (a == 7) {
       File root = SD.open("/");
       while (File entry = root.openNextFile()) {
         Serial.println(entry.name());
       }
     root.close();
-    }
+    } else
     if(a == 8) {
       if (!enabled) {
         Serial.print(F("\n mtr dis"));
@@ -274,7 +281,7 @@ void loop() {
       home_z();
       stepper_z.setCurrentPosition(0);
       offset_z = 0;
-    }
+    } else
     if(a == 9) {
       if (plane_probing) {
         plane_probing = false;
@@ -284,11 +291,11 @@ void loop() {
         plane_probing = true;
         Serial.print(F("\nProb:on"));
       }
-    }
+    } else
     if(a == 10) {
       ready = true;
       Serial.print(F("\ndebug"));
-    }
+    } else
     if (a == 11) {
       if (enabled) {
         stepper_x.disableOutputs();
@@ -367,10 +374,10 @@ void readline(char line[]) {
         return;
       } 
       if (ready) {
-        bool quick = false; 
-        if (line[2] == 0) {
-          quick = true;
-        }
+//        bool quick = false; 
+//        if (line[2] == '0') {
+//          quick = true;
+//        }
         float move_x = 0;
         float move_y = 0;
         float move_z = 0; 
@@ -444,7 +451,7 @@ void readline(char line[]) {
             Serial.println(F("out Z"));
           }
         }
-        if((pos_z < 0) && (offset_z != 0) && (is_probed) && (plane_probing) && !quick) {
+        if((pos_z < 0) && (offset_z != 0) && (is_probed) && (plane_probing)) {
           int plane = which_plane(move_x_y_z);
           if (plane == 1) {
             plane_coefficients = plane_coefficients1;
@@ -537,7 +544,7 @@ void readline(char line[]) {
         if (moves > 1) {
           steppers.moveTo(move_x_y_z);
           steppers.runSpeedToPosition();
-          stepper_x.setCurrentPosition(move_x_y_z[0]);
+          stepper_x.setCurrentPosition(move_x_y_z[0]);  
           stepper_y.setCurrentPosition(move_x_y_z[1]);
           stepper_z.setCurrentPosition(move_x_y_z[2]);
         }else {
@@ -559,7 +566,7 @@ void readline(char line[]) {
       alt = true;
       return;
       }
-    }
+    } else
     if (line[0] == 'G' && line[1] == '2' && line[2] == '8') {	//G28 (auto-home)
       if (!enabled) {
         Serial.print(F("\n mtr dis"));
@@ -577,13 +584,13 @@ void readline(char line[]) {
       offset_z = 0;
       ready = true; 
 //      saveData();
-    }
+    }else
     if (line[0] == 'M' && line[1] == '0' && line[2] == '3') {	//M3 
       digitalWrite(A4, HIGH);
-    }
+    }else
     if (line[0] == 'M' && line[1] == '0' && line[2] == '5') {	//M5 
       digitalWrite(A4,LOW);
-    }
+    }else
     if (line[0] == 'M' && line[1] == '2' && line[2] == '2' && line[3] == '0') {
   char* numPtr = strchr(line, ' ');
       if (numPtr != NULL) {
@@ -661,28 +668,13 @@ void home_z2() {
   digitalWrite(A5,LOW);
 }
 
-void file_read(int a) {
+void file_read(char* path) {
   if (!SD.begin(10)) {
     Serial.println(F("SD non pronta"));
     return;
   }
-  char name[16];
-  if (a == 1) {
-    strcpy(name, "route.cnc");
-  }
-  if (a == 2) {
-    strcpy(name, "drill.cnc");
-    plane_probing = false;
-  }
-  if (a == 3) {
-    strcpy(name, "mask.cnc");
-  }
-  if (a == 4) {
-    plane_probing = false;
-    strcpy(name, "edge.cnc");
-  }
-  if (SD.exists(name)) {
-    myFile = SD.open(name, FILE_READ);
+  if (SD.exists(path)) {
+    myFile = SD.open(path, FILE_READ);
     if (myFile) {
       while (myFile.available()) {
         if (ready == false)
