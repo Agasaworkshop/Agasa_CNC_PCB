@@ -41,7 +41,7 @@ Here is a quick preview of the process of making a board (more info below):
 | Start cutting | Use the commands to start the edge.cnc** file | 20 minutes for the PCB shown*| Yes |
 | Add UV mask | I would not advise making this on the CNC, I did try a bit  but it is not worth it time-wise | 10 minutes [(without CNC)](https://youtu.be/wvU2yyfH-XE?si=ILHJE20edIJDHiam) | Yes |  
 
-*I was afraid to go too fast, I did not stress test this, I did 0.3mm passes at 250 speed (31% speed) with a bit that is not meant for PCBs and was 2mm in diameter, test with caution. 
+*I was afraid to go too fast, I did not stress test this, I did 0.3mm passes at 250 speed (31% speed) with a bit that is not meant for PCBs and was 2mm in diameter, test with caution.   
 **you can also run other file names. I made some specific names and commands to make it quicker for my testing. 
 
 Here are the PCBs I refer to  
