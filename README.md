@@ -220,10 +220,10 @@ for example: "1 G00 X20 Y20".
 ❕❕Every time you secure a new bit you will have to check for the runout, I just look at it and spin it slowly to check a bit, this is very finicky; it will depend on the quality of your coupler or collet, I still fight a lot with my coupler to get it right, sometimes it looks fine but it isn't, it's the biggest problem for me and it would be solved just by finding good quality 3.17mm couplers, I yet have to find them tho. 
 
 ## Post processing
-I vigorously scrub the board with a hard brush that usually does the trick, in some cases I had to send the board a bit with 500 grit sandpaper(for metals) to fix some not properly isolated pads, it takes less than a minute in total.
-I do advise checking for continuity on your board always.
-In the worst case scenario, you can use an exacto knife or box cutter to fix traces but I worked a ton to avoid having to do it I hope it does not happen.
-I'll probably expand the patcher in the near future to have some extra options to improve reliability.
+I vigorously scrub the board with a hard brush that usually does the trick, in some cases I had to send the board a bit with 500 grit sandpaper(for metals) to fix some not properly isolated pads, it takes less than a minute in total.  
+I do advise checking for continuity on your board always.  
+In the worst case scenario, you can use an exacto knife or box cutter to fix traces but I worked a ton to avoid having to do it I hope it does not happen.  
+Soldering without a solder mask is a harrowing process, so I would advise adding it as shown [here](https://youtu.be/wvU2yyfH-XE?si=ILHJE20edIJDHiam). I am not very pleased with the tests I've made by milling the mask myself, but it does depend a lot on the spring-loaded bit.
 
 
 ## File patcher
