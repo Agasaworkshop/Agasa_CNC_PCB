@@ -13,7 +13,7 @@ This project aims at making an affordable CNC that can be built with many common
 
 This project also needs some tools like:  
 - A soldering iron
-- Something to cut M8 and M4 threaded rod like a hacksaw or Dremel (or even a bolt cutter for the M4 rod)
+- Something to cut M8 and M4 threaded rod, like a hacksaw or Dremel (or even a bolt cutter for the M4 rod)
 - M3 and M1 allen key (usually provided with the screw sets and collet).
 - M8 wrench.
 - Common household supplies like tweezers and scissors.
@@ -58,7 +58,7 @@ Here are some standard results on FR1 board made with the latest release (note t
 
 ## What to expect
 This was a project made to challenge myself and allow me to make PCBs at home, it seems to work kinda fine, it is not perfect tho, the process is a bit convoluted, the arduino code could be less cluncky (even tho I am limited by the arduino nano memory, I should migrate this project to a more capable board in the future).  
-The end result is interesting, the boards are functional, the spacing of the pads is consistent enough for the UV mask(for the solder mask) to line up properly but it does seem to have some kind of distortion that I would attribute to either play in the X and Y axis or the bit flexing a bit, I have tried to mitigate this a bit but with little success, the board works because I added some extra features to make the machine reliable but it might mangle a bit some shapes. I do not think it is missing steps because I can run the same code (that presents this distortion) twice on the same board and have the lines perfectly overlap. The pattern does not seem to degenerate over time (so it does not seem like it's losing steps). 
+The end result is interesting, the boards are functional, the spacing of the pads is consistent enough for the UV mask(for the solder mask) to line up properly but it does seem to have some kind of distortion that I would attribute to either play in the X and Y axis or the bit flexing a bit, I have tried to mitigate this a bit but with little success, the board works because I added some extra features to make the machine reliable but it might distort a bit some shapes. I do not think it is missing steps because I can run the same code (that presents this distortion) twice on the same board and have the lines perfectly overlap. The pattern does not seem to degenerate over time (so it does not seem like it's losing steps). 
 The holes also do not come out perfectly centered, not sure why, but it's not a big deal, ICs still fit more than fine.
 
 # Assembly
@@ -72,7 +72,7 @@ The frame is made out of hollow PLA segments reinforced with M8 threaded rods an
 
 ## Axes
 It would be quite complex and wasteful to painstakingly describe the assembly of each little piece; it also would not be that easy to understand, which is why I decided to prepare 4 files called Preview.blend, Preview_x.blend, Preview_y.blend, and Preview_z.blend, each containing every 3d printed piece and hardware positioned in the right place and with [color coded](https://docs.google.com/spreadsheets/d/1UYvKP2MYEV8sfaGlQmCoOGCL_2WACBQjZGL0-ml8eyc/edit?gid=2135254340#gid=2135254340) hardware.  
-Unfortunately I am dumb enough to model in blender. I did not find a much better way of displaying this so you will have to [download Blender](https://www.blender.org/download/) (which is free) to access those files.  
+Unfortunately, I am dumb enough to model in blender. I did not find a much better way of displaying this so you will have to [download Blender](https://www.blender.org/download/) (which is free) to access those files.  
 <img width="325" height="335" alt="image" src="https://github.com/user-attachments/assets/9df7ed10-f0a5-4033-9d78-faac04b87ae6" />
 <img width="486" height="206" alt="image" src="https://github.com/user-attachments/assets/66115400-01d0-4332-8afb-8a9262f7b302" />
 <img width="336" height="282" alt="image" src="https://github.com/user-attachments/assets/1419acae-98ce-44d2-ba9b-e910e4a3c0b1" />
@@ -263,4 +263,5 @@ This project is not certified for compliance with any safety or regulatory stand
 I shall not be held liable for any injury, damage, loss, or legal issues resulting from the use or misuse of this project.
 
 ## Extra
-This machine operates on two sizes of boards, which are 5x7 and 10x7. [I've made a little jig to score and snap the boards](https://www.printables.com/model/1377196-107-pcb-splitter), it works well with FR1, not too well with FR4 (it isn't impossible tho) 
+- This machine operates on two sizes of boards, which are 5x7 and 10x7. [I've made a little jig to score and snap the boards](https://www.printables.com/model/1377196-107-pcb-splitter), it works well with FR1, not too well with FR4 (it isn't impossible tho) 
+- I did attempt some backlash compensation with disappointing results, the current code still has the remains of that (but the parameters are set to 0)
