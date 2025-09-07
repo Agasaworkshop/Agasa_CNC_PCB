@@ -4,6 +4,7 @@
 3 = writes in the console the x,y,z coordinates, the offsets and some more stuff
 4 = lowers the z axys until it finds contact
 5 = starts the "route.cnc" file
+50 + file name = starts the given file (if present in the SD card)
 51 = starts the "mask.cnc" file, does not disable plane probing and does not probe, you need the previous probing (so don't shut it down after route.cnc) <- could be improved
 52 = starts  the "drill.cnc" file, disables plane probing
 53 = starts  the "cut.cnc" file, disables plane probing
