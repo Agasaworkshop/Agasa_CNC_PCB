@@ -98,11 +98,11 @@ Here is the list of boards I used:
 
 -I power this with a computer power supply (the 12V line). I suggest using this kind of power supply because you can get them for very cheap or even free from old computers and ebay/facebook marketplace.  
 -Power the ULN2003 with 12V, the motor driver, and the stepdown.  
--Set the stepdown output to 5V and connect the Arduino, relay and SD card boards to it. 
--The relay is used to switch on and off the motor driver.
--The motor driver is connected to the motor with a flyback diode and some large capacitors (that are rated for more than 12V).
+-Set the stepdown output to 5V and connect the Arduino, relay and SD card boards to it.   
+-The relay is used to switch on and off the motor driver.    
+-The motor driver is connected to the motor with a flyback diode and some large capacitors (that are rated for more than 12V).  
 
-This is the pinout of the Arduino:
+This is the pinout of the Arduino:  
 
 | Arduino pin | Conn. | Arduino pin | Conn. |
 | :---------: | :---: | :---------: | :---: |
