@@ -34,14 +34,15 @@ Here is a quick preview of the process of making a board (more info below):
 | Make the PCB    | use [Kicad](https://www.kicad.org/) or some other software to make the gerber files | depends on the board    | Yes |
 | Convert Gerber to CNC files    | use [flatCam](http://flatcam.org/) (or similar) to export a gcode with the proper format | 3 minutes     | Yes |
 | Jog the machine to the starting point and change the bit | use gcode and the commands to set a relative origin, enable plane probing and change the bit | 5 minutes | Yes|
-| Start milling | Use the commands to start the route.cnc file | 6 minutes for plane probing and 22 minutes for the example PCB(the loud part) | No|
+| Start milling | Use the commands to start the route.cnc file** | 6 minutes for plane probing and 22 minutes for the example PCB(the loud part) | No|
 | Jog the machine to the starting point and change the bit | use gcode and the commands to set a relative origin, disable plane probing and change the bit| 3 minutes | Yes|
-| Start drilling | Use  the commands to start the drill.cnc file | 8 minutes for the example PCB | No| 
+| Start drilling | Use  the commands to start the drill.cnc** file | 8 minutes for the example PCB | No| 
 | Jog the machine to the starting point and change the bit | use gcode and the commands to set a relative origin and change the bit| 5 minutes | Yes|
-| Start cutting | Use the commands to start the edge.cnc file | 20 minutes for the PCB shown*| Yes |
+| Start cutting | Use the commands to start the edge.cnc** file | 20 minutes for the PCB shown*| Yes |
 | Add UV mask | I would not advise making this on the CNC, I did try a bit  but it is not worth it time-wise | 10 minutes [(without CNC)](https://youtu.be/wvU2yyfH-XE?si=ILHJE20edIJDHiam) | Yes |  
 
 *I was afraid to go too fast, I did not stress test this, I did 0.3mm passes at 250 speed (31% speed) with a bit that is not meant for PCBs and was 2mm in diameter, test with caution. 
+**you can also run other file names, I made some specific names and commands to make it quicker for my testing. 
 
 Here are the PCBs I refer to  
 
@@ -49,7 +50,11 @@ Here are the PCBs I refer to
 <img width="180" height="320" alt="image" src="https://github.com/user-attachments/assets/750a5886-00cc-42cc-824e-7d9b47f7383c" />  
 
 Note that the first image contains an exceptionally good result (the second board), depending on the bit and the board you don't always end up with such clear lines, look at the one on the left for comparison.  
-The third one was done by milling the solder mask, but I do not recommend it as it is quite finicky.    
+The third one was done by milling the solder mask, but I do not recommend it as it is quite finicky. 
+
+Here are some standard results on FR1 board made with the latest release (note that you can get better results but I tried to ensure reliability):
+![20250907_205925](https://github.com/user-attachments/assets/6f5c4cfd-22de-419e-ba62-a8ca8f0d729e)
+(they all work fine)
 
 
 # Assembly
@@ -138,6 +143,7 @@ The code does the least possible work to get this kinda working, it can read som
 3 = writes in the console the x,y,z coordinates, the offsets and some more stuff  
 4 = lowers the Z axis until it finds contact  
 5 = starts the "route.cnc" file  
+50 + "file_name.cnc" = starts the "file_name.cnc" file; so 50 route.cnc is the same as 5. (max 16 characters) 
 51 = starts the "mask.cnc" file, does not disable plane probing and does not probe, you need the previous probing (so don't shut it down after route.cnc) <- could be improved  
 52 = starts  the "drill.cnc" file, disables plane probing  
 53 = starts  the "cut.cnc" file, disables plane probing  
@@ -148,7 +154,7 @@ The code does the least possible work to get this kinda working, it can read som
 10 = toggles debug mode, which enables moving without homing   
 11 = toggles enabled and disabled holding torque  
 
-
+❕Note that the 51/52/53 commands are already tailored for their purpose and should not need you to toggle plane probing, if you use the 50 command you must disable the plane probing if you don't want it (for example if you decided to make a different drill_1.cnc file make sure to have plane probing off).
 
 Change relative system  
 21 save solder mask relative system  
@@ -169,15 +175,15 @@ I did attempt some extra features but the arduino nano is running out of memory 
 ## How to prepare the files
 - Create the gerber file.  
 - Import the gerber files of the engraving, holes and cuts in flatcam.  
-- Select the engraving, go to isolation routing, set the thickness of the bit, I use 0.1mm, generate the geometry and set the bit as a C bit (even if it is a V bit), select a cutting depth, I found that different boards call for different values so you will have to experiment a bit, I found good results on FR1 boards with a depth of -0.07mm, I had excelent results on some FR4 boards with around -0.02, your mileage may vary.  
-- Set the end move and tool change Z to a low value (so that you do not exceed the limit) and generate the cnc object, save the file as route.cnc, open the CNC_file_patcher I provvided and drag and drop the file onto it, it will get patched for this machine.
-- Select the drill file, set tool change z and end move to 3mm and the cutting depth a bit short of the PCB thickness, i use -1.35mm on 1.4mm boards, this will ensure you do not ruin the bed, it will also mean that you'll have to complete the holes yourself but it is a very easy and quick job, save the file as drill.cnc.  
--  Select the edge  file, set the bit diameter, set the depth to the same you chose for the drill file, I did -0.3mm passes max, I did not want to stress it too much, export it as edge.cnc.
--  Select the mask file, set the bit diameter, use the paint tool, set an offset, I'd recommend 0.5mm, but you'll have to check if with your bit diameter the mask gets completely cut out (the software won't do areas that would be too small for the bit + offset), export as mask.cnc   
+- Select the engraving, go to isolation routing, set the thickness of the bit, I use 0.2mm(sometimes 0.1), generate the geometry and set the bit as a C bit (even if it is a V bit), select a cutting depth, I found that different boards call for different values so you will have to experiment a bit, I found good results on FR1 boards with a depth of -0.1mm.
+- Set the end move and tool change Z to a low value (so that you do not exceed the limit) and generate the cnc object, save the file as route.cnc, open the CNC_file_patcher I provided and drag and drop the file onto it, it will get patched for this machine. (note that you can call the file whatever you want if you intend on using the 50 command (max 16 characters tho))  
+- Select the drill file, set tool change z and end move to 3mm and the cutting depth a bit short of the PCB thickness, i use -1.35mm on 1.4mm boards, this will ensure you do not ruin the bed, it will also mean that you'll have to complete the holes yourself but it is a very easy and quick job, save the file as drill.cnc (you can call it whatever you want if you use the 50 command).  
+-  Select the edge  file, set the bit diameter, set the depth to the same you chose for the drill file, I did -0.3mm passes max, I did not want to stress it too much, export it as edge.cnc (you can call it whatever you want if you use the 50 command).
+-  Select the mask file, set the bit diameter, use the paint tool, set an offset, I'd recommend 0.5mm, but you'll have to check if with your bit diameter the mask gets completely cut out (the software won't do areas that would be too small for the bit + offset), export as mask.cnc (you can call it whatever you want if you use the 50 command).   
 
 
 ## How to operate the CNC  
-‼️‼️You MUST wear protective equipment (PPE) when dealing with this machine, eye protection, ear protection, a respirator mask and work in a well ventilated area ESPECIALLY with FR4 boards and during cutting, I don't even recommend cutting edges for FR4 board, I would advise only to cut edges on FR1 boards.   
+‼️‼️You MUST wear protective equipment (PPE) when dealing with this machine, eye protection, ear protection, a respirator mask(especially for edge cutting and drilling) and work in a well ventilated area ESPECIALLY with FR4 boards and during cutting. I don't even recommend cutting edges for FR4 board; I would advise only to cut edges on FR1 boards.   
  
 Follow the commands with the M only if you're also planning on milling the soldermask, N only if you're not planning on milling the solder mask; **I do not recommend it**.  
 !!As it stands, disconnecting the computer and reconnecting will lead to the Arduino resetting and losing the ability to keep going with what you were doing. Use a reliable method, I found out my phone is great at this; it can go in standby and still not lose the serial connection and thus not reset the Arduino. 
@@ -190,8 +196,8 @@ for example: "1 G00 X20 Y20".
 - M5.1.2)Secure the drilling bit and use the 4 command to bring down the motor to the copperclad board, save the drill relative system with 22 and home the Z axis with the 8 command.  
 - M5.1.3)Secure the cutting bit and use the 4 command to bring down the motor to the copperclad board, save the cutting relative system with 23 and home the Z axis with the 8 command.  
 - 5.2)Secure the engraving bit and use the 4 command to bring down the motor to the copperclad board, save the current position as a new origin with the 2 command.
-- 6)Enable plane probing with the 9 command; it should say "plane probing enabled" in the console.  
-- 7)Start the engraving process with the 5 command.
+- 6)Enable plane probing with the 9 command; it should say "Prob:on" in the console.  
+- 7)Start the engraving process with the 5 command. (or 50 + file name if you decided to call it differently)
 - 8)Wait for the engraving to finish, in my experience, it is relatively safe and hands off but really loud.  
 - 9)Remove the dust with a mini vacuum cleaner.  
 - M10)Mount the mask milling bit, load the relative system with 211, go to the starting point, since you saved the relative system in step 5.2 you will have to use "1 G00 X0 Y0".  
@@ -213,6 +219,21 @@ for example: "1 G00 X20 Y20".
 
 ❕❕Every time you secure a new bit you will have to check for the runout, I just look at it and spin it slowly to check a bit, this is very finicky; it will depend on the quality of your coupler or collet, I still fight a lot with my coupler to get it right, sometimes it looks fine but it isn't, it's the biggest problem for me and it would be solved just by finding good quality 3.17mm couplers, I yet have to find them tho. 
 
+## Post processing
+I vigorously scrub the board with a hard brush that usually does the trick, in some cases I had to send the board a bit with 500 grit sandpaper(for metals) to fix some not properly isolated pads, it takes less than a minute in total.
+I do advise checking for continuity on your board always.
+In the worst case scenario, you can use an exacto knife or box cutter to fix traces but I worked a ton to avoid having to do it I hope it does not happen.
+I'll probably expand the patcher in the near future to have some extra options to improve reliability.
+
+
+## File patcher
+The file patcher takes a file (drag and drop on the window) patches it and overwrites it with the new version. I currently have 4 features that you can toggle:  
+- Split segments: subdivides long segments into shorter ones (max 2mm). This is done to improve the plane compensation (cause it currently creates 4 planes to approximate the board and you don't want long segments over multiple planes).
+- Add overlap: adds some overlap between the end of the trace and the start to improve the odds of isolating it correctly (the copper can sometimes deform and leave a bridge)
+- Add squares: due to some errors (I think either the bit is flexing or some play in the axys) sometimes when it has to close a shape it does not properly reconnect, to improve reliabilty this option adds a very small square at the end to cut a bit around the end.
+- Simplify shapes: this could speed up the cut a bit.  
+The settings that I do recommend are pre-checked.  
+I will probably at some point add the ability to customize the squares and some other stuff.    
 
 ## Plans for upgrades
 I decided to finalize this current version of the project because I wanted to get a break from it, but I do have A LOT of things I want to improve.  
