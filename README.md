@@ -42,7 +42,7 @@ Here is a quick preview of the process of making a board (more info below):
 | Add UV mask | I would not advise making this on the CNC, I did try a bit  but it is not worth it time-wise | 10 minutes [(without CNC)](https://youtu.be/wvU2yyfH-XE?si=ILHJE20edIJDHiam) | Yes |  
 
 *I was afraid to go too fast, I did not stress test this, I did 0.3mm passes at 250 speed (31% speed) with a bit that is not meant for PCBs and was 2mm in diameter, test with caution. 
-**you can also run other file names, I made some specific names and commands to make it quicker for my testing. 
+**you can also run other file names. I made some specific names and commands to make it quicker for my testing. 
 
 Here are the PCBs I refer to  
 
@@ -52,7 +52,7 @@ Here are the PCBs I refer to
 Note that the first image contains an exceptionally good result (the second board), depending on the bit and the board you don't always end up with such clear lines, look at the one on the left for comparison.  
 The third one was done by milling the solder mask, but I do not recommend it as it is quite finicky. 
 
-Here are some standard results on FR1 board made with the latest release (note that you can get better results but I tried to ensure reliability):
+Here are some standard results on FR1 board made with the latest release (note that you can get better results, but I tried to ensure reliability):
 ![20250907_205925](https://github.com/user-attachments/assets/6f5c4cfd-22de-419e-ba62-a8ca8f0d729e)
 (they all work fine)
 
@@ -140,7 +140,7 @@ How the washers are  mounted, you can solder tin to steel, it will flow nicely o
 
 <img width="408" height="339" alt="image" src="https://github.com/user-attachments/assets/01417ccc-a4d2-4eb2-bcac-8ee069456f55" />
 
-## Code
+# Using the machine
 The code does the least possible work to get this kinda working, it can read some Gcode, it can probe the plane to compensate for a skewed board or other imperfections, it is meant to only read some files with a specific name, here is the list of commands:
 1 + {Gcode} = executes that Gcode  
 2 = Saves the current x,y,z coordinates to the offset and considers the current position as the origin  
@@ -239,7 +239,7 @@ The file patcher takes a file (drag and drop on the window) patches it and overw
 The settings that I do recommend are pre-checked.  
 I will probably at some point add the ability to customize the squares and some other stuff.    
 
-## Plans for upgrades
+# Plans for upgrades
 I decided to finalize this current version of the project because I wanted to get a break from it, but I do have A LOT of things I want to improve.  
 I'll suggest them here:  
 1. One could tinker with the speeds, I pushed the x and y motors quite a bit already but I did not consider the z speed to be that impactful on the time. 
@@ -256,11 +256,10 @@ I'll suggest them here:
 12. Find the best working coupler to get good alignment every time, it's the biggest bottleneck.
 13. I could also consider adding alignment holes to the bed to try implementing double sided boards.
 
-## Disclamer
+# Disclamer
 This machine involves mechanical, electrical, and operational risks. I strongly recommend using appropriate personal protective equipment (the above mentioned PPE) and ensuring proper ventilation during operation. Keep your hands and body parts away from moving axes and the cutting tool, as the system can generate significant force. Be careful when wiring the power supply, especially when working with mains voltage.
 
 This project is not certified for compliance with any safety or regulatory standards. By building, modifying, or operating this machine, you acknowledge and accept that you do so entirely at your own risk.
-
 I shall not be held liable for any injury, damage, loss, or legal issues resulting from the use or misuse of this project.
 
 ## Extra
