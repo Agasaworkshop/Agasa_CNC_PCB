@@ -90,7 +90,7 @@ Here is the list of boards I used:
 3x ULN2003 stepper motor driver  
 1x micro SD card reader  
 1x Arduino Nano  
-1x LM2596 DC to DC Buck Converter   
+1x LM2596 DC to DC Buck Converter module   
 1x relay module  
 1x custom board (see below)  
 1x custom board to distribute power (just a couple of lines of solder with all the cables going out to the various modules)
