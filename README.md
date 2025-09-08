@@ -73,6 +73,7 @@ The frame is made out of hollow PLA segments reinforced with M8 threaded rods an
 ## Axes
 It would be quite complex and wasteful to painstakingly describe the assembly of each little piece; it also would not be that easy to understand, which is why I decided to prepare 4 files called Preview.blend, Preview_x.blend, Preview_y.blend, and Preview_z.blend, each containing every 3d printed piece and hardware positioned in the right place and with [color coded](https://docs.google.com/spreadsheets/d/1UYvKP2MYEV8sfaGlQmCoOGCL_2WACBQjZGL0-ml8eyc/edit?gid=2135254340#gid=2135254340) hardware.  
 Unfortunately, I am dumb enough to model in blender. I did not find a much better way of displaying this so you will have to [download Blender](https://www.blender.org/download/) (which is free) to access those files.  
+This also means I do not have convenient CAD files for my project, even the stl files come from pretty messy blender projects so I'll consider my source the stl files themselves for the licence.
 <img width="325" height="335" alt="image" src="https://github.com/user-attachments/assets/9df7ed10-f0a5-4033-9d78-faac04b87ae6" />
 <img width="486" height="206" alt="image" src="https://github.com/user-attachments/assets/66115400-01d0-4332-8afb-8a9262f7b302" />
 <img width="336" height="282" alt="image" src="https://github.com/user-attachments/assets/1419acae-98ce-44d2-ba9b-e910e4a3c0b1" />
