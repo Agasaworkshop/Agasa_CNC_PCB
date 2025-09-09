@@ -57,8 +57,15 @@ Here are some standard results on FR1 board made with the latest release (note t
 (they all work fine)
 
 ## What to expect
-This was a project made to challenge myself and allow me to make PCBs at home, it seems to work kinda fine, it is not perfect tho, the process is a bit convoluted, the arduino code could be less cluncky (even tho I am limited by the arduino nano memory, I should migrate this project to a more capable board in the future).  
-The end result is interesting, the boards are functional, the spacing of the pads is consistent enough for the UV mask(for the solder mask) to line up properly but it does seem to have some kind of distortion that I would attribute to either play in the X and Y axis or the bit flexing a bit, I have tried to mitigate this a bit but with little success, the board works because I added some extra features to make the machine reliable but it might distort a bit some shapes. I do not think it is missing steps because I can run the same code (that presents this distortion) twice on the same board and have the lines perfectly overlap. The pattern does not seem to degenerate over time (so it does not seem like it's losing steps). 
+I REALLY do not want to decieve anyone, this machine is not perfect at all.  
+
+This was a project made to challenge myself and allow me to make PCBs at home, the process is a bit convoluted, the arduino code could be less cluncky (even tho I am limited by the arduino nano memory, I should migrate this project to a more capable board in the future).  
+Maybe I just need to loosen some screws or add more grease or maybe go slower but over long incisions, the machine does lose some steps. I did not test this enough with big enough boards to detail and correct this.   
+For reference in a 50 miutes incision (which was almost the biggest incision you could make on this machine), it lost around 1mm on the Y axis. I have no more boards to cut so I can't even say if it's a fluke (I want to stop working on this machine for a while). This board will be referenced in the electronics section as it is a board made to substitute most of the modules.   
+
+
+
+The end result is interesting, the boards are mostly functional, the spacing of the pads is consistent enough for the UV mask(for the solder mask) to line up properly but it does seem to have some kind of distortion that I would attribute to either play in the X and Y axis or the bit flexing a bit, I have tried to mitigate this a bit but with little success, the board works because I added some extra features to make the machine reliable but it might distort a bit some shapes. I do not think it is missing steps because I can run the same code (that presents this distortion) twice on the same board and have the lines perfectly overlap. The pattern does not seem to degenerate over time (so it does not seem like it's losing steps). 
 The holes also do not come out perfectly centered, not sure why, but it's not a big deal, ICs still fit more than fine.
 
 # Assembly
@@ -72,12 +79,15 @@ The frame is made out of hollow PLA segments reinforced with M8 threaded rods an
 
 ## Axes
 It would be quite complex and wasteful to painstakingly describe the assembly of each little piece; it also would not be that easy to understand, which is why I decided to prepare 4 files called Preview.blend, Preview_x.blend, Preview_y.blend, and Preview_z.blend, each containing every 3d printed piece and hardware positioned in the right place and with [color coded](https://docs.google.com/spreadsheets/d/1UYvKP2MYEV8sfaGlQmCoOGCL_2WACBQjZGL0-ml8eyc/edit?gid=2135254340#gid=2135254340) hardware.  
+You should also add grease to all screws and guides.  
 Unfortunately, I am dumb enough to model in blender. I did not find a much better way of displaying this so you will have to [download Blender](https://www.blender.org/download/) (which is free) to access those files.  
 This also means I do not have convenient CAD files for my project, even the stl files come from pretty messy blender projects so I'll consider my source the stl files themselves for the licence.
 <img width="325" height="335" alt="image" src="https://github.com/user-attachments/assets/9df7ed10-f0a5-4033-9d78-faac04b87ae6" />
 <img width="486" height="206" alt="image" src="https://github.com/user-attachments/assets/66115400-01d0-4332-8afb-8a9262f7b302" />
 <img width="336" height="282" alt="image" src="https://github.com/user-attachments/assets/1419acae-98ce-44d2-ba9b-e910e4a3c0b1" />
 <img width="228" height="233" alt="image" src="https://github.com/user-attachments/assets/b4b075bf-19ed-477a-8c75-959a1e54f7b3" />
+
+
 
 ### Bellows
 This was unfortunately a bit rushed, you can print the bellows flat on your bed with a 0.12mm layer height. 
