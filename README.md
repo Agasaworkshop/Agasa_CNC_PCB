@@ -73,7 +73,8 @@ There is also a second kind of distortion in action (that is not related to lost
 
 
 # Assembly
-Being a budget machine, it requires considerable effort on the user's part for assembly.
+Being a budget machine, it requires considerable effort on the user's part for assembly.  
+I have some additional notes on the hardware [here](HARDWARE_NOTES.md).
 ## Frame
 The frame is made out of hollow PLA segments reinforced with M8 threaded rods and filled with concrete, which makes for a very rigid material with decent tolerances, good vibration dampening and very cheap, the M8 rods also help with assembling them together.  
 
@@ -278,7 +279,9 @@ I'll suggest them here:
 13. I could also consider adding alignment holes to the bed to try implementing double sided boards.
 
 # Disclamer
-This machine involves mechanical, electrical, and operational risks. I strongly recommend using appropriate personal protective equipment (the above mentioned PPE) and ensuring proper ventilation during operation. Keep your hands and body parts away from moving axes and the cutting tool, as the system can generate significant force. Be careful when wiring the power supply, especially when working with mains voltage.
+This machine involves mechanical, electrical, and operational risks. I strongly recommend using appropriate personal protective equipment (the above mentioned PPE) and ensuring proper ventilation during operation.  
+Keep your hands and body parts away from moving axes and the cutting tool, as the system can generate significant force.  
+Be careful when wiring the power supply, especially when working with mains voltage.
 
 This project is not certified for compliance with any safety or regulatory standards. By building, modifying, or operating this machine, you acknowledge and accept that you do so entirely at your own risk.
 I shall not be held liable for any injury, damage, loss, or legal issues resulting from the use or misuse of this project.
