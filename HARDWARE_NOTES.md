@@ -2,12 +2,13 @@
 
 ## Collets:  
 <img width="1268" height="548" alt="image" src="https://github.com/user-attachments/assets/e0739cb0-1c7c-43a8-bf17-a19937fa7738" />  
-Here are all the collets (all 3.17mm to 3.17mm couplers or collets) I've tried:
-1. The hole had quite a big tolerance; the bit ended up being wonky most of the times it was very frustrating to correct.
-2. Same as 1
-3. It was too tight, I could not fit the bits.
-4. It had similar tollerances to 1 and 2 but the coupler nature makes it a bit easier to adjust, it's also quite heavy.
-5. This fit the bit perfectly, the only problem was that it was too tall, this prevented me from mounting 
+Here are all the collets (all 3.17mm to 3.17mm couplers or collets) I've tried:  
+
+1. The hole had quite a big tolerance; the bit ended up being wonky most of the times it was very frustrating to correct.  
+2. Same as 1  
+3. It was too tight, I could not fit the bits.  
+4. It had similar tollerances to 1 and 2 but the coupler nature makes it a bit easier to adjust, it's also quite heavy.  
+5. This fit the bit perfectly, the only problem was that it was too tall, this prevented me from mounting.   
 6. This is my current choice, it has similar problems to 4 but it's quite a lot lighter and a bit smaller.
 
 I suggest marking one side and tightening mostly that side to both motor shaft and cutting bit to improve probability of working.  
