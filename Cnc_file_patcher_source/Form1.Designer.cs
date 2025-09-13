@@ -94,6 +94,7 @@
             checkBox3.TabIndex = 2;
             checkBox3.Text = "Add squares";
             checkBox3.UseVisualStyleBackColor = true;
+            checkBox3.CheckedChanged += checkBox3_CheckedChanged;
             // 
             // checkBox2
             // 

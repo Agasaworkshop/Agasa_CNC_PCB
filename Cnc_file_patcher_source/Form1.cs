@@ -72,7 +72,7 @@ namespace cnc_code_fix
                 currentPath = tempPath;
             }
 
-            if (checkBox5.Checked)
+            if (checkBox5.Checked && checkBox3.Checked)
             {
                 string tempPath = Path.Combine(Path.GetDirectoryName(path), "temp_square.cnc");
                 GcodeSquareFix.ProcessGcodeFile(currentPath, tempPath, squareSize: 0.2);
@@ -94,9 +94,17 @@ namespace cnc_code_fix
             SystemSounds.Exclamation.Play();
         }
 
-
-
-
+        private void checkBox3_CheckedChanged(object sender, EventArgs e)
+        {
+            if (checkBox3.Checked == true)
+            {
+                checkBox5.Enabled = true;
+            }
+            else
+            {
+                checkBox5.Enabled = false;
+            }
+        }
     }
     class GcodeProcessor
     {
