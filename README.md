@@ -63,7 +63,7 @@ This was a project made to challenge myself and allow me to make PCBs at home, t
 
 Maybe I just need to loosen some screws or add more grease, maybe go slower or mount the Y rails better but over long incisions, my machine does lose some steps on the Y axis. I did not test this enough with big enough boards to detail and correct this, I still need to look into this and it might be fixed by just adding a way of ensuring proper Y alignment.   
 For reference in a 50 miutes incision (which was almost the biggest incision you could make on this machine), it lost around 1mm on the Y axis. I have no more boards to cut so I can't even say if it's a fluke (I want to stop working on this machine for a while).   
-
+(note that 50 minutes incisions is referred to the time it took to do the engraving, the part in which it did lose a significant amount of steps, it also did take around 40 minutes of drilling due to the large amount of holes and a couple of minutes for the mounting holes).  
 Here is the board, the traces were very nice but they drifted 1mm over time making the holes not aligned (noticing the drift I decided to home back between cutting and drilling)  
 <img width="657" height="458" alt="image" src="https://github.com/user-attachments/assets/f7de2bdd-1453-4b75-a794-e7135a4344fe" />
 
