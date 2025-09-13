@@ -32,10 +32,11 @@
         {
             label1 = new Label();
             panel1 = new Panel();
-            checkBox1 = new CheckBox();
-            checkBox2 = new CheckBox();
-            checkBox3 = new CheckBox();
+            checkBox5 = new CheckBox();
             checkBox4 = new CheckBox();
+            checkBox3 = new CheckBox();
+            checkBox2 = new CheckBox();
+            checkBox1 = new CheckBox();
             panel1.SuspendLayout();
             SuspendLayout();
             // 
@@ -50,6 +51,7 @@
             // 
             // panel1
             // 
+            panel1.Controls.Add(checkBox5);
             panel1.Controls.Add(checkBox4);
             panel1.Controls.Add(checkBox3);
             panel1.Controls.Add(checkBox2);
@@ -59,29 +61,27 @@
             panel1.Size = new Size(150, 152);
             panel1.TabIndex = 1;
             // 
-            // checkBox1
+            // checkBox5
             // 
-            checkBox1.AutoSize = true;
-            checkBox1.Checked = true;
-            checkBox1.CheckState = CheckState.Checked;
-            checkBox1.Location = new Point(3, 3);
-            checkBox1.Name = "checkBox1";
-            checkBox1.Size = new Size(128, 24);
-            checkBox1.TabIndex = 0;
-            checkBox1.Text = "Split segments";
-            checkBox1.UseVisualStyleBackColor = true;
+            checkBox5.AutoSize = true;
+            checkBox5.Checked = true;
+            checkBox5.CheckState = CheckState.Checked;
+            checkBox5.Location = new Point(3, 93);
+            checkBox5.Name = "checkBox5";
+            checkBox5.Size = new Size(118, 24);
+            checkBox5.TabIndex = 4;
+            checkBox5.Text = "Extra squares";
+            checkBox5.UseVisualStyleBackColor = true;
             // 
-            // checkBox2
+            // checkBox4
             // 
-            checkBox2.AutoSize = true;
-            checkBox2.Checked = true;
-            checkBox2.CheckState = CheckState.Checked;
-            checkBox2.Location = new Point(3, 33);
-            checkBox2.Name = "checkBox2";
-            checkBox2.Size = new Size(113, 24);
-            checkBox2.TabIndex = 1;
-            checkBox2.Text = "Add overlap";
-            checkBox2.UseVisualStyleBackColor = true;
+            checkBox4.AutoSize = true;
+            checkBox4.Location = new Point(3, 123);
+            checkBox4.Name = "checkBox4";
+            checkBox4.Size = new Size(134, 24);
+            checkBox4.TabIndex = 3;
+            checkBox4.Text = "Simplify shapes";
+            checkBox4.UseVisualStyleBackColor = true;
             // 
             // checkBox3
             // 
@@ -95,15 +95,29 @@
             checkBox3.Text = "Add squares";
             checkBox3.UseVisualStyleBackColor = true;
             // 
-            // checkBox4
+            // checkBox2
             // 
-            checkBox4.AutoSize = true;
-            checkBox4.Location = new Point(3, 93);
-            checkBox4.Name = "checkBox4";
-            checkBox4.Size = new Size(134, 24);
-            checkBox4.TabIndex = 3;
-            checkBox4.Text = "Simplify shapes";
-            checkBox4.UseVisualStyleBackColor = true;
+            checkBox2.AutoSize = true;
+            checkBox2.Checked = true;
+            checkBox2.CheckState = CheckState.Checked;
+            checkBox2.Location = new Point(3, 33);
+            checkBox2.Name = "checkBox2";
+            checkBox2.Size = new Size(113, 24);
+            checkBox2.TabIndex = 1;
+            checkBox2.Text = "Add overlap";
+            checkBox2.UseVisualStyleBackColor = true;
+            // 
+            // checkBox1
+            // 
+            checkBox1.AutoSize = true;
+            checkBox1.Checked = true;
+            checkBox1.CheckState = CheckState.Checked;
+            checkBox1.Location = new Point(3, 3);
+            checkBox1.Name = "checkBox1";
+            checkBox1.Size = new Size(128, 24);
+            checkBox1.TabIndex = 0;
+            checkBox1.Text = "Split segments";
+            checkBox1.UseVisualStyleBackColor = true;
             // 
             // Form1
             // 
@@ -131,6 +145,7 @@
         private CheckBox checkBox3;
         private CheckBox checkBox2;
         private CheckBox checkBox1;
+        private CheckBox checkBox5;
     }
 
 

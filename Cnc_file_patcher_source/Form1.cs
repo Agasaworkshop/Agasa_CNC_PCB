@@ -72,6 +72,13 @@ namespace cnc_code_fix
                 currentPath = tempPath;
             }
 
+            if (checkBox5.Checked)
+            {
+                string tempPath = Path.Combine(Path.GetDirectoryName(path), "temp_square.cnc");
+                GcodeSquareFix.ProcessGcodeFile(currentPath, tempPath, squareSize: 0.2);
+                currentPath = tempPath;
+            }
+
             // Alla fine, sovrascrivi l'originale con l'ultimo file processato
             if (currentPath != path)
             {
