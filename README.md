@@ -202,85 +202,89 @@ I did attempt some extra features, but the Arduino Nano is already running out o
 ## How to prepare the files
 - Create the gerber file.  
 - Import the gerber files of the engraving, holes and cuts in flatcam.  
-- Select the engraving, go to isolation routing, set the thickness of the bit, I use 0.2mm(sometimes 0.1), generate the geometry and set the bit as a C bit (even if it is a V bit), select a cutting depth, I found that different boards call for different values so you will have to experiment a bit, I found good results on FR1 boards with a depth of -0.1mm.
-- Set the end move and tool change Z to a low value (so that you do not exceed the limit) and generate the cnc object, save the file as route.cnc, open the CNC_file_patcher I provided and drag and drop the file onto it, it will get patched for this machine. (note that you can call the file whatever you want if you intend on using the 50 command (max 16 characters tho))  
-- Select the drill file, set tool change z and end move to 3mm and the cutting depth a bit short of the PCB thickness, i use -1.35mm on 1.4mm boards, this will ensure you do not ruin the bed, it will also mean that you'll have to complete the holes yourself but it is a very easy and quick job, save the file as drill.cnc (you can call it whatever you want if you use the 50 command).  
--  Select the edge  file, set the bit diameter, set the depth to the same you chose for the drill file, I did -0.3mm passes max, I did not want to stress it too much, export it as edge.cnc (you can call it whatever you want if you use the 50 command).
--  Select the mask file, set the bit diameter, use the paint tool, set an offset, I'd recommend 0.5mm, but you'll have to check if with your bit diameter the mask gets completely cut out (the software won't do areas that would be too small for the bit + offset), export as mask.cnc (you can call it whatever you want if you use the 50 command).   
+- Select the engraving, go to isolation routing, and set the bit thickness (I use 0.1 mm, sometimes 0.2 mm). Generate the geometry and set the bit as a C-bit (even if it is actually a V-bit). Then select a cutting depth. Different boards may require different values, so you will need to experiment. On FR1 boards, a depth of -0.1 mm produced good results.
+- Set the end move and tool change Z to a low value to avoid exceeding the limits, then generate the CNC object and save the file as route.cnc. Open the CNC_file_patcher I provided and drag the file onto it; it will be patched for this machine. (Note: you can name the file anything if you plan to use the 50 command, up to 16 characters.)  
+- Select the drill file, set the tool change Z and end move to 3 mm, and set the cutting depth slightly less than the PCB thickness (I use -1.35 mm on 1.4 mm boards). This prevents damaging the bed, but you will need to complete the holes manually. It is a simple and quick task. Save the file as drill.cnc (you can choose any name if you use the 50 command).   
+-  Select the edge file, set the bit diameter, and use the same depth as for the drill file. I used -0.3 mm passes to avoid stressing the machine. Export it as edge.cnc (you can name it freely if you use the 50 command).
+-  Select the mask file, set the bit diameter, and use the paint tool. Set an offset—0.5 mm is recommended—but check that the mask is fully cut out given your bit diameter. The software will skip areas that are too small for the bit plus offset. Export the file as mask.cnc (you can name it freely if you use the 50 command).   
 
 
 ## How to operate the CNC  
-‼️‼️You MUST wear protective equipment (PPE) when dealing with this machine, eye protection, ear protection, a respirator mask(especially for edge cutting and drilling) and work in a well ventilated area ESPECIALLY with FR4 boards and during cutting. I don't even recommend cutting edges for FR4 board; I would advise only to cut edges on FR1 boards.   
+‼️‼️You MUST wear personal protective equipment (PPE) when operating this machine, including eye protection, ear protection, and a respirator mask (especially for edge cutting and drilling). Work in a well-ventilated area, particularly when using FR4 boards or performing cutting operations (I don't even really recommend cutting FR4, just engraving and milling). 
  
-Follow the commands with the M only if you're also planning on milling the soldermask, N only if you're not planning on milling the solder mask; **I do not recommend it**.  
-!!As it stands, disconnecting the computer and reconnecting will lead to the Arduino resetting and losing the ability to keep going with what you were doing. Use a reliable method, I found out my phone is great at this; it can go in standby and still not lose the serial connection and thus not reset the Arduino. 
-- 1)Power up the machine with the external power supply and connect your laptop.  
-- 2)Secure a board with all bolts, make sure the bed washer is tight; you risk damaging the bit if you forget.
-- 3)Before moving you must home(the machine will not accept movement if not homed), so send over serial (9600 baud rate) "1 G28" 1 means that what follows has to be interpreted as GCODE ad G28 is the home all axes gcode.  
-- 4)Jog the machine to what you want to be the starting position, use G00 to do so (G00 is the quick movement), a good starting point is in the bottom left corner, it's at around X20 Y20    
-for example: "1 G00 X20 Y20".  
-- M5.1.1)Secure the mask milling bit and use the 4 command to bring down the motor to the copperclad board, save the mask relative system with 21 and home the Z axis with the 8 command.   
-- M5.1.2)Secure the drilling bit and use the 4 command to bring down the motor to the copperclad board, save the drill relative system with 22 and home the Z axis with the 8 command.  
-- M5.1.3)Secure the cutting bit and use the 4 command to bring down the motor to the copperclad board, save the cutting relative system with 23 and home the Z axis with the 8 command.  
-- 5.2)Secure the engraving bit and use the 4 command to bring down the motor to the copperclad board, save the current position as a new origin with the 2 command.
-- 6)Enable plane probing with the 9 command; it should say "Prob:on" in the console.  
-- 7)Start the engraving process with the 5 command. (or 50 + file name if you decided to call it differently)
-- 8)Wait for the engraving to finish, in my experience, it is relatively safe and hands off but really loud.  
-- 9)Remove the dust with a mini vacuum cleaner.  
-- M10)Mount the mask milling bit, load the relative system with 211, go to the starting point, since you saved the relative system in step 5.2 you will have to use "1 G00 X0 Y0".  
-- M11)Start the mask milling with 51, set the motor speed to 3% (to mill the mask you will need to be able to control the motor).  
-- M12)Wait for the mask milling to end, this is also hands off, less loud tho.
-- 13)Mount the drilling bit, set the speed to max again, disable plane probing with the 9 command.  
-- M14)Load the drill relative system with 221 and go back to the origin (1 G00 X0 Y0).  
-- N14)Go back to the origin (1 G00 X0 Y0), lower the z axis with the 4 command and set a new relative system with the 2 command.  
-- 15)Start the drilling process with the 52 command.
-- 16)Wait for the drilling to finish, in my experience it is relatively safe and hands off but really loud.  
-- 17)Remove dust.  
-- 18)Secure the cutting bit.  
-- M19)Load the cutting relative system with 231,change the speed to 30%(M220 30), and go back to the origin(1 G00 X0 Y0).  
-- N19)Go back to the origin, lower the z axis with the 4 command and set a new relative system with the 2 command.  
-- 20)Start the cutting process with the 53 command.  
-- 21)Wait for the cut to finish, while you're at it keep an eye on it, and remove some dust, I suggest moving it with a brush and vacuuming it off the board.
-- 23)dismount the board, give it a vigorous scrub with a hard brush, check for continuity, completely drill out the holes and break the remaining piece of board attached after cutting with a box cutter.
-- N24)Add the solder mask like in [this video](https://youtu.be/wvU2yyfH-XE?si=ILHJE20edIJDHiam).
+Use commands prefixed with M only if you plan to mill the solder mask, and N only if you do not plan to mill it. Note: milling the solder mask is not recommended.    
 
-❕❕Every time you secure a new bit you will have to check for the runout, I just look at it and spin it slowly to check a bit, this is very finicky; it will depend on the quality of your coupler or collet, I still fight a lot with my coupler to get it right, sometimes it looks fine but it isn't, it's the biggest problem for me and it would be solved just by finding good quality 3.17mm couplers, I yet have to find them tho. 
+!!As it stands, disconnecting the computer and reconnecting will lead to the Arduino resetting and losing the ability to keep going with what you were doing. Use a reliable method; I found out my phone is great at this; it can go into standby and still not lose the serial connection, and thus not reset the Arduino. 
+
+- 1) Power up the machine with the external power supply and connect your computer or phone.  
+- 2) Secure a board with all bolts, make sure the bed washer is tight. Forgetting this may damage the bit.
+- 3) Before moving, you must home the machine (it will not accept movement if not homed). Send the following over serial at 9600 baud: "1 G28". Here, 1 indicates that the following command is G-code, and G28 is the “home all axes” command.  
+- 4) Jog the machine to the desired starting position using G00 (rapid movement). A good starting point is the bottom-left corner, approximately at X20 Y20. For example: "1 G00 X20 Y20".  
+- M5.1.1) Secure the mask milling bit and use the 4 command to bring down the motor to the copperclad board. Save the mask relative system with 21 and home the Z axis with the 8 command.   
+- M5.1.2) Secure the drilling bit and use the 4 command to bring down the motor to the copperclad board. Save the drill relative system with 22 and home the Z axis with the 8 command.  
+- M5.1.3) Secure the cutting bit and use the 4 command to bring down the motor to the copperclad board. Save the cutting relative system with 23 and home the Z axis with the 8 command.  
+- 5.2) Secure the engraving bit and use the 4 command to bring down the motor to the copperclad board. Save the current position as a new origin with the 2 command.
+- 6) Enable plane probing with the 9 command. It should say "Prob:on" in the console.  
+- 7) Start the engraving process with the 5 command. (or 50 + file name if you named the file differently)
+- 8) Wait for the engraving to finish, in my experience, it is relatively safe and hands off but really loud.  
+- 9) Remove the dust with a mini vacuum cleaner.  
+- M10) Mount the mask milling bit. Load the relative system with command 211. Go to the starting point. Since you saved the relative system in step 5.2, use "1 G00 X0 Y0".   
+- M11) Start the mask milling with 51, set the motor speed to 3% (to mill the mask you will need to be able to control the motor).  
+- M12) Wait for the mask milling to compòete. This is also hands off, less loud tho.
+- 13) Mount the drilling bit, set the speed to max again, disable plane probing with the 9 command.  
+- M14) Load the drill relative system with 221 and go back to the origin (1 G00 X0 Y0).  
+- N14) Go back to the origin (1 G00 X0 Y0). Lower the z axis with the 4 command and set a new relative system with the 2 command.  
+- 15) Start the drilling process with the 52 command.
+- 16) Wait for the drilling to finish. In my experience it is relatively safe and hands off but really loud.  
+- 17) Remove dust.  
+- 18) Secure the cutting bit.  
+- M19) Load the cutting relative system with command 231. Set the motor speed to 30% (M220 30) and return to the origin using "1 G00 X0 Y0".  
+- N19) Lower the z axis with the 4 command and set a new relative system with the 2 command.  
+- 20) Start the cutting process with the 53 command.  
+- 21) Wait for the cut to finish. While you're at it keep an eye on it, and remove some dust. I suggest moving it with a brush and vacuuming it off the board.
+- 23) Dismount the board. Scrub it with a hard brush, check continuity, drill out any remaining holes and complete the cut with a box cutter.
+- N24) Add the solder mask like in [this video](https://youtu.be/wvU2yyfH-XE?si=ILHJE20edIJDHiam).
+
+❕❕Every time you secure a new bit you will have to check for the runout. I just look at it and spin it slowly to check a bit, this is very finicky; it will depend on the quality of your coupler or collet.  
+I still fight a lot with my coupler to get it right, sometimes it looks fine but it isn't, it's the biggest problem for me and it would be solved just by finding good quality 3.17mm couplers, I yet have to find them tho.  
+You can find some more details on this [here](HARDWARE_NOTES.md).
 
 ## Post processing
-I vigorously scrub the board with a hard brush that usually does the trick, in some cases I had to send the board a bit with 500 grit sandpaper(for metals) to fix some not properly isolated pads, it takes less than a minute in total.  
+I scrub the board vigorously with a hard brush, which usually suffices. In some cases, I used 500-grit sandpaper (for metals) to fix poorly isolated pads. The process takes less than a minute in total.  
 I do advise checking for continuity on your board always.  
-In the worst case scenario, you can use an exacto knife or box cutter to fix traces but I worked a ton to avoid having to do it I hope it does not happen.  
-Soldering without a solder mask is a harrowing process, so I would advise adding it as shown [here](https://youtu.be/wvU2yyfH-XE?si=ILHJE20edIJDHiam). I am not very pleased with the tests I've made by milling the mask myself, but it does depend a lot on the spring-loaded bit.
+In the worst-case scenario, you can use an X-Acto knife or box cutter to fix traces. I have worked extensively to avoid this, so it should not be necessary most of the times.  
+Soldering without a solder mask is a harrowing process, so I would advise adding it as shown [here](https://youtu.be/wvU2yyfH-XE?si=ILHJE20edIJDHiam). I am not satisfied with the results of milling the mask myself, although performance depends greatly on the quality of the spring-loaded bit.  
 
 
 ## File patcher
-The file patcher takes a file (drag and drop on the window) patches it and overwrites it with the new version. I currently have 4 features that you can toggle:  
-- Split segments: subdivides long segments into shorter ones (max 2mm). This is done to improve the plane compensation (cause it currently creates 4 planes to approximate the board and you don't want long segments over multiple planes).
-- Add overlap: adds some overlap between the end of the trace and the start to improve the odds of isolating it correctly (the copper can sometimes deform and leave a bridge)
-- Add squares: due to some errors (I think either the bit is flexing or some play in the axys) sometimes when it has to close a shape it does not properly reconnect, to improve reliabilty this option adds a very small square at the end to cut a bit around the end.
+The file patcher accepts a file (simply drag and drop it onto the window), patches it, and overwrites it with the new version. Currently, it has four features that you can toggle:  
+- Split segments: subdivides long segments into shorter ones (maximum 2 mm). This improves plane compensation, as the software currently creates four planes to approximate the board. Long segments spanning multiple planes can cause inaccuracies.  
+- Add overlap: adds some overlap between the end of a trace and its start to improve the likelihood of correct isolation. Copper can sometimes deform and leave a bridge.
+- Add squares: Add squares: due to some errors (possibly bit flexing or play in the axis), the tool may fail to properly reconnect when closing a shape. To improve reliability, this option adds a very small square at the end to ensure a proper cut.
+- Extra squares: makes the square bigger to make sure. If they are problematic, the small squares are usually enough.
 - Simplify shapes: this could speed up the cut a bit.  
-The settings that I do recommend are pre-checked.  
-I will probably at some point add the ability to customize the squares and some other stuff.    
+Recommended settings are pre-checked by default.  
+I plan to add the ability to customize the squares and other features in a future update.  
 
 # Plans for upgrades
-I decided to finalize this current version of the project because I wanted to get a break from it, but I do have A LOT of things I want to improve.  
-I'll suggest them here:  
+I decided to finalize the current version of the project to take a break, but I still have many improvements I want to implement.  
+Here are some potential upgrades:  
 1. One could tinker with the speeds, I pushed the x and y motors quite a bit already but I did not consider the z speed to be that impactful on the time. 
-2. Considering the little additional cost of nema motors one could decide to mount a pancake NEMA17 motor to the Z and X axis and even a standard NEMA17 to the Y axis, the code should be fairly simple, I would mostly care about fitting nemas to X and Y and try to get a better speed.
-3. I've tested quite a bit with milling the solder mask and did not have perfect results. I currently suspect my DIY bit is not up to the task, I should investigate further but it felt like a fool's errand, knowing the other way of adding the solder mask.
-4. I've fitted the bellows at the end and did not do the best job, I would love to improve on them.
+2. Considering the little additional cost of NEMA motors, one could decide to mount a pancake NEMA17 motor to the Z and X axis and standard NEMA17 to the Y axis. The code should be fairly simple; I would mostly care about fitting nemas to X and Y and try to get a better speed.
+3. I've tested quite a bit with milling the solder mask and did not have perfect results. I currently suspect my DIY bit is not up to the task. I should investigate further but it felt like a fool's errand, knowing the other way of adding the solder mask.
+4. I've fitted the bellows at the end and did not do the best job. I would love to improve on them.
 5. Currently, the spindle is very loud. I'd like to figure out if I can do something about it.
-6. The current system of regulating spindle speed is a bit crude due to the fact that, if you avoid milling the mask, you can just have 1 speed, but fitting an H-bridge would be a no-brainer (the motor should draw around 2.5A).
-7. I would like to test different types of plane probing to maybe make it quicker (it currently takes a total of 25 points 5 at each spot, maybe I could do just 1 for each spot) 
-8. I did not tinker enough with the cutting speeds because I was a bit afraid of wrecking the machine at the finish line, I'll have to test a bit after I recover from burnout. 
-9. I might want to migrate the code to a better microcontroller, I used arduino to be more accessible but its limitations did show.
-10. I tinkered with adding a saving system to avoid homing all the times and to avoid losing progress if one ended up resetting the Arduino by accident, the problem was the arduino memory that was running out.
-11. If I do end up changing some of the above I would probably implement some extra G code like spindle speed.
-12. Find the best working coupler to get good alignment every time, it's the biggest bottleneck.
-13. I could also consider adding alignment holes to the bed to try implementing double sided boards.
+6. The current spindle speed regulation is crude. If you skip milling the mask, a single speed suffices. Adding an H-bridge would simplify speed control (the motor draws about 2.5 A).  
+7. I would like to test different types of plane probing to maybe make it quicker (it currently takes a total of 25 points 5 at each spot, maybe I could do just 1 for each spot).  
+8. I did not tinker enough with the cutting speeds because I was a bit afraid of wrecking the machine at the finish line. I'll have to test a bit after I recover from burnout. 
+9. I might want to migrate the code to a better microcontroller. I used arduino to be more accessible but its limitations did show.
+10. I tinkered with adding a saving system to avoid homing all the times and to avoid losing progress if one ended up resetting the Arduino by accident. The problem was the arduino memory that was running out.
+11. If I do end up changing some of the above, I would probably implement some extra G code, like spindle speed.
+12. Find the best working coupler to get good alignment every time; it's the biggest problem for me.
+13. I could also consider adding alignment holes to the bed to try implementing double-sided boards.
 
-# Disclamer
-This machine involves mechanical, electrical, and operational risks. I strongly recommend using appropriate personal protective equipment (the above mentioned PPE) and ensuring proper ventilation during operation.  
+# Disclaimer
+This machine involves mechanical, electrical, and operational risks. I strongly recommend using appropriate personal protective equipment (PPE mentioned above) and ensuring proper ventilation during operation.  
 Keep your hands and body parts away from moving axes and the cutting tool, as the system can generate significant force.  
 Be careful when wiring the power supply, especially when working with mains voltage.
 
@@ -288,5 +292,5 @@ This project is not certified for compliance with any safety or regulatory stand
 I shall not be held liable for any injury, damage, loss, or legal issues resulting from the use or misuse of this project.
 
 ## Extra
-- This machine operates on two sizes of boards, which are 5x7 and 10x7. [I've made a little jig to score and snap the boards](https://www.printables.com/model/1377196-107-pcb-splitter), it works well with FR1, not too well with FR4 (it isn't impossible tho) 
-- I did attempt some backlash compensation with disappointing results, the current code still has the remains of that (but the parameters are set to 0)
+- This machine operates on two sizes of boards, which are 5x7 and 10x7. [I've made a little jig to score and snap the boards](https://www.printables.com/model/1377196-107-pcb-splitter), it works well with FR1, not too well with FR4 (it isn't impossible tho).  
+- I did attempt some backlash compensation with disappointing results; the current code still has the remains of that (but the parameters are set to 0).  
