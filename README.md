@@ -60,13 +60,17 @@ Here are some standard results on FR1 board made with the latest release (note t
 I REALLY do not want to decieve anyone, this machine is not perfect at all.  
 
 This was a project made to challenge myself and allow me to make PCBs at home, the process is a bit convoluted, the arduino code could be less cluncky (even tho I am limited by the arduino nano memory, I should migrate this project to a more capable board in the future).  
-Maybe I just need to loosen some screws or add more grease or maybe go slower but over long incisions, the machine does lose some steps. I did not test this enough with big enough boards to detail and correct this.   
-For reference in a 50 miutes incision (which was almost the biggest incision you could make on this machine), it lost around 1mm on the Y axis. I have no more boards to cut so I can't even say if it's a fluke (I want to stop working on this machine for a while). This board will be referenced in the electronics section as it is a board made to substitute most of the modules.   
 
+Maybe I just need to loosen some screws or add more grease, maybe go slower or mount the Y rails better but over long incisions, my machine does lose some steps on the Y axis. I did not test this enough with big enough boards to detail and correct this, I still need to look into this and it might be fixed by just adding a way of ensuring proper Y alignment.   
+For reference in a 50 miutes incision (which was almost the biggest incision you could make on this machine), it lost around 1mm on the Y axis. I have no more boards to cut so I can't even say if it's a fluke (I want to stop working on this machine for a while).   
 
+Here is the board, the traces were very nice but they drifted 1mm over time making the holes not aligned (noticing the drift I decided to home back between cutting and drilling)  
+<img width="657" height="458" alt="image" src="https://github.com/user-attachments/assets/f7de2bdd-1453-4b75-a794-e7135a4344fe" />
 
-The end result is interesting, the boards are mostly functional, the spacing of the pads is consistent enough for the UV mask(for the solder mask) to line up properly but it does seem to have some kind of distortion that I would attribute to either play in the X and Y axis or the bit flexing a bit, I have tried to mitigate this a bit but with little success, the board works because I added some extra features to make the machine reliable but it might distort a bit some shapes. I do not think it is missing steps because I can run the same code (that presents this distortion) twice on the same board and have the lines perfectly overlap. The pattern does not seem to degenerate over time (so it does not seem like it's losing steps). 
-The holes also do not come out perfectly centered, not sure why, but it's not a big deal, ICs still fit more than fine.
+Due to the size of the board I suggest cutting deeper to ensure proper isolation, this worked out pretty well but I did refine 5 pads with a box cutter (I did -0.12mm, with -0.15 probably it would have been better).  
+
+There is also a second kind of distortion in action (that is not related to lost steps) that makes it so that some parts of the traces get deformed, this is usually harmless unless it happens on the segment that closes the shape, to prevent this from causing problems I've added the "add squares" option to the patcher, it seems to work fine. 
+
 
 # Assembly
 Being a budget machine, it requires considerable effort on the user's part for assembly.
@@ -108,7 +112,7 @@ Here is the list of boards I used:
 1x metal washer with a bigger diameter that will go on the bed  
 
 -I power this with a computer power supply (the 12V line). I suggest using this kind of power supply because you can get them for very cheap or even free from old computers and ebay/facebook marketplace.  
--Power the ULN2003 with 12V, the motor driver, and the stepdown.  
+-Power the ULN2003 with 12V, the motor driver, and the stepdown(if you use a computer PSU you can just connect the 5V line).  
 -Set the stepdown output to 5V and connect the Arduino, relay and SD card boards to it.   
 -The relay is used to switch on and off the motor driver.    
 -The motor driver is connected to the motor with a flyback diode and some large capacitors (that are rated for more than 12V).  
@@ -120,15 +124,15 @@ This is the pinout of the Arduino:
 |     TX1     |   NC   |     D13     |   SCK sd card board   |
 |     RX0     |   NC   |     3v3     |   NC   |
 |     RST     |   NC   |     REF     |   NC   |
-|     GND     |   OUT- stepdown   |      A0     |   MY IN1   |
-|      D2     |   MZ IN2   |      A1     |   MY IN2   |
-|      D3     |   MZ IN1   |      A2     |   MY IN3   |
-|      D4     |   MZ IN3   |      A3     |   MY IN4   |
-|      D5     |   MX IN4   |      A4     |   Relay S |
-|      D6     |   MX IN3   |      A5     |   Z2 enable pin custom board   |
-|      D7     |   MX IN2   |      A6     |   switch pin on custom board  |
-|      D8     |   MX IN1   |      A7     |   Z2 pin on custom board |
-|      D9     |   MZ IN4   |      5V     |   OUT+ stepdown   |
+|     GND     |   OUT- stepdown   |      A0     |   MZ IN4   |
+|      D2     |   MY IN4   |      A1     |   MZ IN3   |
+|      D3     |   MY IN3   |      A2     |   MZ IN2   |
+|      D4     |   MY IN2   |      A3     |   MZ IN1   |
+|      D5     |   MY IN1   |      A4     |   Relay S |
+|      D6     |   MX IN4   |      A5     |   Z2 enable pin custom board   |
+|      D7     |   MX IN3   |      A6     |   switch pin on custom board  |
+|      D8     |   MX IN2   |      A7     |   Z2 pin on custom board |
+|      D9     |   MX IN1   |      5V     |   OUT+ stepdown   |
 |     D10     |   CS sd card board   |     RST     |   NC   |
 |     D11     |   MOSI sd card board   |     GND     |   NC   |
 |     D12     |   MISO sd card board   |     Vin     |   NC   |  
@@ -147,9 +151,15 @@ I mounted the electronics with my [CMS](https://www.printables.com/@AgasasWorksh
 
 <img width="1280" height="576" alt="image" src="https://github.com/user-attachments/assets/ba09b5ae-814f-45e1-bd35-952cb0c2a404" />  
 
-How the washers are  mounted, you can solder tin to steel, it will flow nicely once the washer gets pretty hot (it takes a bit, during that time it will not stick at all)  
+Alternatively, you could put together the circuit on perfboard like shown here:
+<img width="640" height="288" alt="image" src="https://github.com/user-attachments/assets/79159e76-e36b-4f37-a818-8d021695b795" />
 
-<img width="408" height="339" alt="image" src="https://github.com/user-attachments/assets/01417ccc-a4d2-4eb2-bcac-8ee069456f55" />
+You could also, when the machine is ready mill your own board, or buy one from a site. To do this I've a schematic, this is also helpful if you want to make the perfboard version.
+
+
+How the washers are  mounted:   
+<img width="408" height="339" alt="image" src="https://github.com/user-attachments/assets/01417ccc-a4d2-4eb2-bcac-8ee069456f55" />   
+you can solder tin to steel, it will flow nicely once the washer gets pretty hot (it takes a bit, during that time it will not stick at all)
 
 # Using the machine
 The code does the least possible work to get this kinda working, it can read some Gcode, it can probe the plane to compensate for a skewed board or other imperfections, it is meant to only read some files with a specific name, here is the list of commands:
