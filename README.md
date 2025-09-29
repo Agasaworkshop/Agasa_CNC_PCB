@@ -1,4 +1,4 @@
-<img width="720" height="1280" alt="image" src="https://github.com/user-attachments/assets/0cd4f2ca-88d0-48cd-8a77-413e173f4f48" /># PCB MILLING CNC OVERVIEW  
+# PCB MILLING CNC OVERVIEW  
 
 <img width="1236" height="574" alt="image" src="https://github.com/user-attachments/assets/af06d7e1-19c9-42f3-aa06-0edbf7c719b0" />
 
