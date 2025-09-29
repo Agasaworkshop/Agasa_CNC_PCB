@@ -1,10 +1,11 @@
-# PCB MILLING CNC OVERVIEW  
+<img width="720" height="1280" alt="image" src="https://github.com/user-attachments/assets/0cd4f2ca-88d0-48cd-8a77-413e173f4f48" /># PCB MILLING CNC OVERVIEW  
 
 <img width="1236" height="574" alt="image" src="https://github.com/user-attachments/assets/af06d7e1-19c9-42f3-aa06-0edbf7c719b0" />
 
 
 I've decided to make this CNC from spare parts to see if I was up to the challenge. This was very time-consuming, and it is still a work in progress, but it is enough for a first publication, to see if people like it and maybe contribute.
 ****The total cost is around 150€, it also requires several hours of printing and assembly.****  
+[Here you can find a video about it](https://www.youtube.com/watch?v=syjpmd4Yy7Q)
 
 This project aims to create an affordable CNC that can be built with many common parts you might already have lying around: [here you can find the bill of materials.](https://docs.google.com/spreadsheets/d/1UYvKP2MYEV8sfaGlQmCoOGCL_2WACBQjZGL0-ml8eyc/edit?usp=sharing)
 
