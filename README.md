@@ -259,7 +259,7 @@ Use commands prefixed with M only if you plan to mill the solder mask, and N onl
 - 23) Dismount the board. Scrub it with a hard brush, check continuity, drill out any remaining holes and complete the cut with a box cutter.
 - N24) Add the solder mask like in [this video](https://youtu.be/wvU2yyfH-XE?si=ILHJE20edIJDHiam).
 
-❕❕Every time you secure a new bit you will have to check for the runout. I just look at it and spin it slowly to check a bit, this is very finicky; it will depend on the quality of your coupler or collet.  
+❕❕Every time you secure a new bit you will have to check for the runout. I just look at it and spin it slowly to check, this is very finicky; it will depend on the quality of your coupler or collet.  
 I still fight a lot with my coupler to get it right, sometimes it looks fine but it isn't, it's the biggest problem for me and it would be solved just by finding good quality 3.17mm couplers, I yet have to find them tho.  
 You can find some more details on this [here](HARDWARE_NOTES.md).
 
