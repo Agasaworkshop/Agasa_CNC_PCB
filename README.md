@@ -67,7 +67,10 @@ Here is the board:
 
 Due to the size of the board, I suggest cutting deeper to ensure proper isolation. This worked reasonably well, but I had to refine 5 pads with a box cutter. (I used –0.15 mm to be sure, that is why some traces are a bit deep, I might also suggest using a 0.2mm bit and not a 0.1mm bit, especially if you don't use a soldermask to avoid bridging while soldering).  
 
-There is also some kind of distortion (not related to lost steps) that causes some traces to deform, this is usually harmless unless it happens on the segment that closes the shape, to prevent this from causing problems I've added the "add squares" option to the patcher. It seems to work fine. 
+There is also some kind of distortion (not related to lost steps) that causes some traces to deform, this is usually harmless unless it happens on the segment that closes the shape, to prevent this from causing problems I've added the "add squares" option to the patcher. It seems to work fine.   
+
+Here you can see a board that was also cut with this machine.   
+<img width="553" height="633" alt="image" src="https://github.com/user-attachments/assets/8c425628-5775-412b-b36b-1cbb416c6116" />
 
 
 # Assembly
@@ -210,7 +213,7 @@ The machine currently only recognizes
 G00/G01  (movement)  
 M03/M05  (spindle on/off)  
 G28  (home all axes)  
-G220 (change stepper speed, for example "G220 80" (or "G220 S80 it's the same) will set the G01 speed as 80% of the G00 speed which is considered the fastest speed (can't go over 100% or under 0%)  
+M220 (change stepper speed, for example "G220 80" (or "G220 S80 it's the same) will set the G01 speed as 80% of the G00 speed which is considered the fastest speed (can't go over 100% or under 0%)  
 I did attempt some extra features, but the Arduino Nano is already running out of memory.  
 
 ## How to prepare the files
