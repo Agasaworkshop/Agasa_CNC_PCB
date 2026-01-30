@@ -613,8 +613,7 @@ void readline(char line[]) {
          }
         int a = atoi(numPtr + 1);  // converte il numero dopo lo spazio
         if (a >= 0 && a <= 100) {
-          x_y_speed1 = x_y_speed0 * a / 100;
-          x_y_speed0 = x_y_speed1;
+          x_y_speed1 = (long)x_y_speed0 * a / 100;
           Serial.print(F("\n New spd set to "));
           Serial.println(x_y_speed1);
         }
