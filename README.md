@@ -69,7 +69,7 @@ Due to the size of the board, I suggest cutting deeper to ensure proper isolatio
 
 There is also some kind of distortion (not related to lost steps) that causes some traces to deform, this is usually harmless unless it happens on the segment that closes the shape, to prevent this from causing problems I've added the "add squares" option to the patcher. It seems to work fine.   
 
-Here you can see a board that was also cut with this machine.   
+Here you can see a board that was also cut with this machine (I went a bit too deep with the traces so they don't look as good as they could).   
 <img width="553" height="633" alt="image" src="https://github.com/user-attachments/assets/8c425628-5775-412b-b36b-1cbb416c6116" />
 
 
