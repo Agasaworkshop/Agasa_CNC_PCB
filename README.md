@@ -254,17 +254,19 @@ Use commands prefixed with M only if you plan to mill the solder mask, and N onl
 - 15) Start the drilling process with the 52 command.
 - 16) Wait for the drilling to finish. In my experience it is relatively safe and hands off but really loud.  
 - 17) Remove dust.  
-- 18) Secure the cutting bit.  
-- M19) Load the cutting relative system with command 231. Set the motor speed to 30% (M220 30) and return to the origin using "1 G00 X0 Y0".  
+- 18) Secure the cutting bit.I suggest a 1mm cutting bit  
+- M19) Load the cutting relative system with command 231. Set the feed speed* and return to the origin using "1 G00 X0 Y0".  
 - N19) Lower the z axis with the 4 command and set a new relative system with the 2 command.  
 - 20) Start the cutting process with the 53 command.  
 - 21) Wait for the cut to finish. While you're at it keep an eye on it, and remove some dust. I suggest moving it with a brush and vacuuming it off the board.
 - 23) Dismount the board. Scrub it with a hard brush, check continuity, drill out any remaining holes and complete the cut with a box cutter.
 - N24) Add the solder mask like in [this video](https://youtu.be/wvU2yyfH-XE?si=ILHJE20edIJDHiam).
 
-❕❕Every time you secure a new bit you will have to check for the runout. I just look at it and spin it slowly to check, this is very finicky; it will depend on the quality of your coupler or collet.  
-I still fight a lot with my coupler to get it right, sometimes it looks fine but it isn't, it's the biggest problem for me and it would be solved just by finding good quality 3.17mm couplers, I yet have to find them tho.  
+❕❕Every time you secure a new bit, you will have to check for the runout. I just look at it and spin it slowly to check, this is very finicky; it will depend on the quality of your coupler or collet.  
+I still fight a lot with my coupler to get it right. Sometimes it looks fine, but it isn't. It's the biggest problem for me, and it would be solved just by finding good quality 3.17mm couplers, I yet have to find them tho.  
 You can find some more details on this [here](HARDWARE_NOTES.md).
+
+*You can set the speed of the G01 command via the M220 command, with a 1mm bit. I have seen you can actually go 100% speed at 0.3mm passes. I would still go a bit lower, like 80%. 
 
 ## Post processing
 I scrub the board vigorously with a hard brush, which usually suffices. In some cases, I used 500-grit sandpaper (for metals) to fix poorly isolated pads. The process takes less than a minute in total.  
