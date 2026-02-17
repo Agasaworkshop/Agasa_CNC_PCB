@@ -276,10 +276,13 @@ In the worst-case scenario, you can use an X-Acto knife or box cutter to fix tra
 Soldering without a solder mask is a harrowing process, so I would advise adding it as shown [here](https://youtu.be/wvU2yyfH-XE?si=ILHJE20edIJDHiam). I am not satisfied with the results of milling the mask myself, although performance depends greatly on the quality of the spring-loaded bit.  
 
 
-## File patcher
-The file patcher accepts a file (simply drag and drop it onto the window), patches it, and overwrites it with the new version. Currently, it has four features that you can toggle:  
+## File patcher   
+<img width="462" height="247" alt="image" src="https://github.com/user-attachments/assets/45dab974-31a0-4915-b0dd-69c707f672e7" />   
+   
+The file patcher accepts a file (simply drag and drop it onto the window), patches it, and overwrites it with the new version. Currently, it has five features that you can toggle:  
 - Split segments: subdivides long segments into shorter ones (maximum 2 mm). This improves plane compensation, as the software currently creates four planes to approximate the board. Long segments spanning multiple planes can cause inaccuracies.  
 - Add overlap: adds some overlap between the end of a trace and its start to improve the likelihood of correct isolation. Copper can sometimes deform and leave a bridge.
+- Improve pads: merges close lines of adjacent pads to reduce the probability of ripping off the pad (especially useful for small pitches like 0.5mm). This does not currently work well with the overlap so I made it so that it toggles between the two. This feature is currently limited to horizontal and vertical pads. 
 - Add squares: Add squares: due to some errors (possibly bit flexing or play in the axis), the tool may fail to properly reconnect when closing a shape. To improve reliability, this option adds a very small square at the end to ensure a proper cut.
 - Extra squares: makes the square bigger to make sure. If they are problematic, the small squares are usually enough.
 - Simplify shapes: this could speed up the cut a bit.  
