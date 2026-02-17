@@ -33,6 +33,7 @@
             label1 = new Label();
             panel1 = new Panel();
             checkBox5 = new CheckBox();
+            checkBox6 = new CheckBox();
             checkBox4 = new CheckBox();
             checkBox3 = new CheckBox();
             checkBox2 = new CheckBox();
@@ -52,13 +53,14 @@
             // panel1
             // 
             panel1.Controls.Add(checkBox5);
-            panel1.Controls.Add(checkBox4);
-            panel1.Controls.Add(checkBox3);
+            panel1.Controls.Add(checkBox6);
             panel1.Controls.Add(checkBox2);
             panel1.Controls.Add(checkBox1);
+            panel1.Controls.Add(checkBox4);
+            panel1.Controls.Add(checkBox3);
             panel1.Location = new Point(296, 12);
             panel1.Name = "panel1";
-            panel1.Size = new Size(150, 152);
+            panel1.Size = new Size(150, 185);
             panel1.TabIndex = 1;
             // 
             // checkBox5
@@ -66,17 +68,30 @@
             checkBox5.AutoSize = true;
             checkBox5.Checked = true;
             checkBox5.CheckState = CheckState.Checked;
-            checkBox5.Location = new Point(3, 93);
+            checkBox5.Location = new Point(3, 123);
             checkBox5.Name = "checkBox5";
             checkBox5.Size = new Size(118, 24);
             checkBox5.TabIndex = 4;
             checkBox5.Text = "Extra squares";
             checkBox5.UseVisualStyleBackColor = true;
             // 
+            // checkBox6
+            // 
+            checkBox6.AutoSize = true;
+            checkBox6.Checked = true;
+            checkBox6.CheckState = CheckState.Checked;
+            checkBox6.Location = new Point(3, 63);
+            checkBox6.Name = "checkBox6";
+            checkBox6.Size = new Size(122, 24);
+            checkBox6.TabIndex = 3;
+            checkBox6.Text = "Improve pads";
+            checkBox6.UseVisualStyleBackColor = true;
+            checkBox6.CheckedChanged += checkBox6_CheckedChanged;
+            // 
             // checkBox4
             // 
             checkBox4.AutoSize = true;
-            checkBox4.Location = new Point(3, 123);
+            checkBox4.Location = new Point(3, 153);
             checkBox4.Name = "checkBox4";
             checkBox4.Size = new Size(134, 24);
             checkBox4.TabIndex = 3;
@@ -88,7 +103,7 @@
             checkBox3.AutoSize = true;
             checkBox3.Checked = true;
             checkBox3.CheckState = CheckState.Checked;
-            checkBox3.Location = new Point(3, 63);
+            checkBox3.Location = new Point(3, 93);
             checkBox3.Name = "checkBox3";
             checkBox3.Size = new Size(113, 24);
             checkBox3.TabIndex = 2;
@@ -99,14 +114,13 @@
             // checkBox2
             // 
             checkBox2.AutoSize = true;
-            checkBox2.Checked = true;
-            checkBox2.CheckState = CheckState.Checked;
             checkBox2.Location = new Point(3, 33);
             checkBox2.Name = "checkBox2";
             checkBox2.Size = new Size(113, 24);
             checkBox2.TabIndex = 1;
             checkBox2.Text = "Add overlap";
             checkBox2.UseVisualStyleBackColor = true;
+            checkBox2.CheckedChanged += checkBox2_CheckedChanged;
             // 
             // checkBox1
             // 
@@ -125,7 +139,7 @@
             AllowDrop = true;
             AutoScaleDimensions = new SizeF(8F, 20F);
             AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(458, 176);
+            ClientSize = new Size(458, 209);
             Controls.Add(panel1);
             Controls.Add(label1);
             Name = "Form1";
@@ -147,6 +161,7 @@
         private CheckBox checkBox2;
         private CheckBox checkBox1;
         private CheckBox checkBox5;
+        private CheckBox checkBox6;
     }
 
 

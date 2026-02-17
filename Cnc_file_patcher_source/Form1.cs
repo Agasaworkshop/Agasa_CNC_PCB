@@ -40,6 +40,14 @@ namespace cnc_code_fix
         {
             string currentPath = path;
 
+            if (checkBox6.Checked)
+            {
+                string tempPath = Path.Combine(Path.GetDirectoryName(path), "temp_align.cnc");
+                GcodeParallelAlignProcessor.ProcessGcodeFile(currentPath, tempPath);
+                currentPath = tempPath;
+            }
+
+
             // 1. Split: spezza i segmenti lunghi
             if (checkBox1.Checked)
             {
@@ -103,6 +111,23 @@ namespace cnc_code_fix
             else
             {
                 checkBox5.Enabled = false;
+                checkBox5.Checked = false;
+            }
+        }
+
+        private void checkBox6_CheckedChanged(object sender, EventArgs e)
+        {
+            if (checkBox6.Checked == true)
+            {
+                checkBox2.Checked = false;
+            }
+        }
+
+        private void checkBox2_CheckedChanged(object sender, EventArgs e)
+        {
+            if (checkBox2.Checked == true)
+            {
+                checkBox6.Checked = false;
             }
         }
     }
@@ -487,7 +512,217 @@ namespace cnc_code_fix
         }
     }
 
+    class GcodeParallelAlignProcessor
+    {
+        private const double DISTANCE_THRESHOLD = 0.3;
+        private const double MIN_LENGTH = 1.0;
+        private const double TOL = 1e-6;
 
+        class Segment
+        {
+            public double X0, Y0;
+            public double X1, Y1;
+            public int LineIndex;
+            public int? PrevLineIndex;
+        }
+
+        private static double ExtractValue(string line, char axis, double defaultValue)
+        {
+            var match = Regex.Match(line, $"{axis}(-?\\d+\\.?\\d*)");
+            if (match.Success)
+                return double.Parse(match.Groups[1].Value, System.Globalization.CultureInfo.InvariantCulture);
+            return defaultValue;
+        }
+
+        private static string ReplaceAxis(string line, char axis, double value)
+        {
+            string pattern = $"{axis}-?\\d+\\.?\\d*";
+
+            if (Regex.IsMatch(line, pattern))
+            {
+                return Regex.Replace(
+                    line,
+                    pattern,
+                    $"{axis}{value.ToString("0.0000", System.Globalization.CultureInfo.InvariantCulture)}"
+                );
+            }
+            else
+            {
+                return line.TrimEnd() + $" {axis}{value.ToString("0.0000", System.Globalization.CultureInfo.InvariantCulture)}";
+            }
+        }
+
+        private static double Quantize(double val, double step = 0.01)
+        {
+            return Math.Round(val / step) * step;
+        }
+
+        public static void ProcessGcodeFile(string inputPath, string outputPath)
+        {
+            var lines = File.ReadAllLines(inputPath);
+            var segments = new List<Segment>();
+
+            double currentX = 0.0;
+            double currentY = 0.0;
+            double currentZ = 0.0;
+
+            int? prevMotionLine = null;
+
+            // =========================
+            // STEP 1 — PARSE SEGMENTI
+            // =========================
+            for (int idx = 0; idx < lines.Length; idx++)
+            {
+                string stripped = lines[idx].Trim().ToUpper();
+
+                double startX = currentX;
+                double startY = currentY;
+
+                double newX = ExtractValue(stripped, 'X', currentX);
+                double newY = ExtractValue(stripped, 'Y', currentY);
+                double newZ = ExtractValue(stripped, 'Z', currentZ);
+
+                if (stripped.StartsWith("G01") || stripped.StartsWith("G1"))
+                {
+                    double dx = newX - currentX;
+                    double dy = newY - currentY;
+                    double length = Math.Sqrt(dx * dx + dy * dy);
+
+                    if (currentZ < 0)
+                    {
+                        bool vertical = Math.Abs(dx) < TOL;
+                        bool horizontal = Math.Abs(dy) < TOL;
+
+                        if ((vertical || horizontal) && length > MIN_LENGTH)
+                        {
+                            segments.Add(new Segment
+                            {
+                                X0 = currentX,
+                                Y0 = currentY,
+                                X1 = newX,
+                                Y1 = newY,
+                                LineIndex = idx,
+                                PrevLineIndex = prevMotionLine
+                            });
+                        }
+                    }
+
+                    prevMotionLine = idx;
+                }
+
+                currentX = newX;
+                currentY = newY;
+                currentZ = newZ;
+            }
+
+            // =========================
+            // STEP 2 — TROVA COPPIE
+            // =========================
+
+            var verticalGroups = new Dictionary<(double, double), List<Segment>>();
+            var horizontalGroups = new Dictionary<(double, double), List<Segment>>();
+
+            foreach (var seg in segments)
+            {
+                if (Math.Abs(seg.X0 - seg.X1) < TOL)
+                {
+                    var key = (
+                        Quantize(Math.Min(seg.Y0, seg.Y1)),
+                        Quantize(Math.Max(seg.Y0, seg.Y1))
+                    );
+
+                    if (!verticalGroups.ContainsKey(key))
+                        verticalGroups[key] = new List<Segment>();
+
+                    verticalGroups[key].Add(seg);
+                }
+                else if (Math.Abs(seg.Y0 - seg.Y1) < TOL)
+                {
+                    var key = (
+                        Quantize(Math.Min(seg.X0, seg.X1)),
+                        Quantize(Math.Max(seg.X0, seg.X1))
+                    );
+
+                    if (!horizontalGroups.ContainsKey(key))
+                        horizontalGroups[key] = new List<Segment>();
+
+                    horizontalGroups[key].Add(seg);
+                }
+            }
+
+            var modifications = new Dictionary<int, (char axis, double value)>();
+
+            void ProcessGroup(List<Segment> group, bool vertical)
+            {
+                group.Sort((a, b) =>
+                    vertical
+                        ? a.X0.CompareTo(b.X0)
+                        : a.Y0.CompareTo(b.Y0));
+
+                for (int i = 0; i < group.Count; i++)
+                {
+                    for (int j = i + 1; j < group.Count; j++)
+                    {
+                        double distance = vertical
+                            ? Math.Abs(group[j].X0 - group[i].X0)
+                            : Math.Abs(group[j].Y0 - group[i].Y0);
+
+                        if (distance < DISTANCE_THRESHOLD)
+                        {
+                            double mid = vertical
+                                ? (group[i].X0 + group[j].X0) / 2.0
+                                : (group[i].Y0 + group[j].Y0) / 2.0;
+
+                            char axis = vertical ? 'X' : 'Y';
+
+                            foreach (var seg in new[] { group[i], group[j] })
+                            {
+                                modifications[seg.LineIndex] = (axis, mid);
+
+                                if (seg.PrevLineIndex.HasValue)
+                                    modifications[seg.PrevLineIndex.Value] = (axis, mid);
+                            }
+                        }
+                        else
+                        {
+                            break; // IDENTICO AL PYTHON
+                        }
+                    }
+                }
+            }
+
+            foreach (var group in verticalGroups.Values)
+                ProcessGroup(group, true);
+
+            foreach (var group in horizontalGroups.Values)
+                ProcessGroup(group, false);
+
+            // =========================
+            // STEP 3 — SCRITTURA FILE
+            // =========================
+
+            using (var writer = new StreamWriter(outputPath))
+            {
+                double zState = 0.0;
+
+                for (int idx = 0; idx < lines.Length; idx++)
+                {
+                    string line = lines[idx];
+                    string stripped = line.Trim().ToUpper();
+
+                    zState = ExtractValue(stripped, 'Z', zState);
+
+                    if (modifications.ContainsKey(idx))
+                    {
+                        var (axis, value) = modifications[idx];
+                        line = ReplaceAxis(line, axis, value);
+                    }
+
+                    writer.WriteLine(line);
+                }
+            }
+        }
+    }
 
 
 
