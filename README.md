@@ -70,8 +70,8 @@ Due to the size of the board, I suggest cutting deeper to ensure proper isolatio
 There is also some kind of distortion (not related to lost steps) that causes some traces to deform, this is usually harmless unless it happens on the segment that closes the shape, to prevent this from causing problems I've added the "add squares" option to the patcher. It seems to work fine.   
 
 Here you can see a board that was also cut with this machine(the bit was a bit out of whack here tho).   
-<img width="459" height="524" alt="image" src="https://github.com/user-attachments/assets/d11197e1-72d1-45ec-b21b-e1b21a2834da" />
-
+<img width="459" height="524" alt="image" src="https://github.com/user-attachments/assets/d11197e1-72d1-45ec-b21b-e1b21a2834da" />    
+This board is the [Detective Boys walkie talkie pin badge](https://github.com/DanieElectronics/DetectiveBoysWT) from [DanieElectronics](https://github.com/DanieElectronics)
 
 
 # Assembly
