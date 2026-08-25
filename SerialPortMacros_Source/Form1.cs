@@ -1,0 +1,1880 @@
+﻿using System.Diagnostics;
+using System.IO.Ports;
+using System.Text;
+using WindowsInput;
+using System.Globalization;
+using System.Collections.Concurrent;
+using System.Text.RegularExpressions; // Regex, Match
+using System.Linq;                   // Cast, Select, ToList
+using System.Globalization;          // CultureInfo
+using System.Windows.Forms;
+using System.Text.Json;
+
+
+
+namespace SerialPortMacros
+{
+    public partial class Form1 : Form
+    {
+        public SerialPort port1 = new SerialPort();
+        public SerialPort port2 = new SerialPort();
+        public SerialPort port3 = new SerialPort();
+        public SerialPort port4 = new SerialPort();
+        public int selectedport;
+        public bool opn_p1 = false;
+        public bool opn_p2 = false;
+        public bool opn_p3 = false;
+        public bool opn_p4 = false;
+        public bool is_running = false;
+        public bool time_log = true;
+        public Script[] scripts;
+        public bool is_locked = true;
+        public bool logging = false;
+        public StringBuilder mes1 = new StringBuilder();
+        public StringBuilder mes2 = new StringBuilder();
+        public StringBuilder mes3 = new StringBuilder();
+        public StringBuilder mes4 = new StringBuilder();
+        public StreamWriter _writer1;
+        private string _logFilePath1;
+        public StreamWriter _writer2;
+        private string _logFilePath2;
+        public StreamWriter _writer3;
+        private string _logFilePath3;
+        public StreamWriter _writer4;
+        private string _logFilePath4;
+        public StreamWriter _writer5;
+        private string _logFilePath5;
+        public bool multilog = false;
+        public bool looking_for_merge = false;
+        private Form4 merging_form = null;
+        public Dictionary<string, List<Form4>> openGraphs = new Dictionary<string, List<Form4>>();
+        private System.Windows.Forms.Timer _uiTimer;
+        private readonly Action<string, string, bool, bool, bool, bool, Color> _processUiAction;
+        private System.Windows.Forms.Timer port_timeout;
+        string exeFolder = AppDomain.CurrentDomain.BaseDirectory;
+        private readonly string settingsPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "settings.json");
+
+        private AppSettings settings = new AppSettings();
+
+
+        public Form1()
+        {
+            InitializeComponent();
+            _processUiAction = UiProcess;
+        }
+        private void Form1_Load(object sender, EventArgs e)
+        {
+            comboBox6.Items.Clear();
+
+            comboBox6.Items.Add("No line ending");
+            comboBox6.Items.Add("New line");
+            comboBox6.Items.Add("Carriage return");
+            comboBox6.Items.Add("Both NL & CR");
+
+            for (int k = 1; k < 5; k++)
+            {
+                Searchports(k);
+            }
+
+            setports();
+            ScanScripts();
+
+            textBox1.TabStop = false;
+
+
+            port_timeout = new System.Windows.Forms.Timer();
+            port_timeout.Interval = 1000;
+            port_timeout.Tick += remove_ports;
+            port_timeout.Start();
+
+            LoadSettings();
+        }
+
+
+        private void button1_Click(object sender, EventArgs e)
+        {
+            if (button1.Text == "Start")
+            {
+                button1.Text = "Stop";
+                is_running = true;
+                ScanScripts();
+            }
+            else
+            {
+                button1.Text = "Start";
+                is_running = false;
+            }
+        }
+
+        private void button2_Click(object sender, EventArgs e)
+        {
+            ScanScripts();
+            Form3 macro_form = new Form3(this);
+            macro_form.ShowDialog();
+        }
+
+        private List<string> commandHistory = new List<string>();
+        private int historyIndex = 0; // 0 = textbox normale (nessuna history attiva)
+        private const int maxHistory = 50;
+
+        private void textBox1_Keypress(object sender, KeyPressEventArgs e)
+        {
+            if (e.KeyChar == (char)Keys.Enter)
+            {
+                e.Handled = true;
+
+                string inputText = textBox1.Text;
+
+                if (!string.IsNullOrWhiteSpace(inputText))
+                {
+                    // Aggiunge alla history
+                    commandHistory.Add(inputText);
+
+                    // Mantieni solo gli ultimi 50
+                    if (commandHistory.Count > maxHistory)
+                        commandHistory.RemoveAt(0);
+                }
+
+                historyIndex = 0; // reset indice
+
+                aggiungi_a_textbox2(inputText, "You", Color.Black);
+                textBox1.Text = "";
+                Sendtoports(inputText);
+
+                if (logging)
+                    Task.Run(() => LogUserInput(inputText));
+            }
+        }
+        private void LogUserInput(string inputText)
+        {
+            string log_input_text = $"You: {inputText}";
+
+            if (time_log)
+            {
+                string timestamp = DateTime.Now.ToString("HH:mm:ss.fff");
+                log_input_text = $"{timestamp} | You: {inputText}";
+            }
+
+            if (!checkBox9.Checked)
+                return;
+
+            if (checkBox8.Checked) _writer1.WriteLine(log_input_text);
+            if (checkBox7.Checked) _writer2.WriteLine(log_input_text);
+            if (checkBox6.Checked) _writer3.WriteLine(log_input_text);
+            if (checkBox5.Checked) _writer4.WriteLine(log_input_text);
+            if (multilog) _writer5.WriteLine(log_input_text);
+        }
+
+
+        private void button3_Click(object sender, EventArgs e)
+        {
+            if (opn_p1 == false)
+            {
+                int baud = int.Parse(textBox3.Text);
+                string name = comboBox2.Text;
+
+
+                if (Openport(baud, port1, name) == 1)
+                {
+
+                    textBox3.Enabled = false;
+                    button3.Image = Properties.Resources.Disconnect;
+                    toolTip1.SetToolTip(button3, "Disconnect");
+                    opn_p1 = true;
+                    string iconPath = Path.Combine(exeFolder, "icon_closed.ico");
+                    this.Icon = new Icon(iconPath);
+                }
+            }
+            else
+            {
+                textBox3.Enabled = true;
+                port1.Close();
+                button3.Image = Properties.Resources.AddConnection;
+                toolTip1.SetToolTip(button3, "Connect");
+                opn_p1 = false;
+                if (opn_p4 == false && opn_p2 == false && opn_p3 == false)
+                {
+                    string iconPath = Path.Combine(exeFolder, "icon_open.ico");
+                    this.Icon = new Icon(iconPath);
+                }
+            }
+        }
+
+        private void button4_Click(object sender, EventArgs e)
+        {
+            if (opn_p3 == false)
+            {
+                int baud = int.Parse(textBox4.Text);
+                string name = comboBox3.Text;
+                if (Openport(baud, port3, name) == 1)
+                {
+                    textBox4.Enabled = false;
+                    button4.Image = Properties.Resources.Disconnect;
+                    toolTip1.SetToolTip(button4, "Disconnect");
+                    opn_p3 = true;
+                    string iconPath = Path.Combine(exeFolder, "icon_closed.ico");
+                    this.Icon = new Icon(iconPath);
+                }
+            }
+            else
+            {
+                port3.Close();
+                textBox4.Enabled = true;
+                button4.Image = Properties.Resources.AddConnection;
+                toolTip1.SetToolTip(button4, "Connect");
+                opn_p3 = false;
+                if (opn_p1 == false && opn_p2 == false && opn_p4 == false)
+                {
+                    string iconPath = Path.Combine(exeFolder, "icon_open.ico");
+                    this.Icon = new Icon(iconPath);
+                }
+            }
+        }
+
+        private void button5_Click(object sender, EventArgs e)
+        {
+            if (opn_p2 == false)
+            {
+                int baud = int.Parse(textBox5.Text);
+                string name = comboBox1.Text;
+
+                if (Openport(baud, port2, name) == 1)
+                {
+                    textBox5.Enabled = false;
+                    button5.Image = Properties.Resources.Disconnect;
+                    toolTip1.SetToolTip(button5, "Disconnect");
+                    opn_p2 = true;
+                    string iconPath = Path.Combine(exeFolder, "icon_closed.ico");
+                    this.Icon = new Icon(iconPath);
+                }
+            }
+            else
+            {
+                textBox5.Enabled = true;
+                port2.Close();
+                button5.Image = Properties.Resources.AddConnection;
+                toolTip1.SetToolTip(button5, "Connect");
+                opn_p2 = false;
+                if (opn_p1 == false && opn_p4 == false && opn_p3 == false)
+                {
+                    string iconPath = Path.Combine(exeFolder, "icon_open.ico");
+                    this.Icon = new Icon(iconPath);
+                }
+
+            }
+        }
+        private void button6_Click(object sender, EventArgs e)
+        {
+            if (opn_p4 == false)
+            {
+                int baud = int.Parse(textBox6.Text);
+                string name = comboBox4.Text;
+
+                if (Openport(baud, port4, name) == 1)
+                {
+                    textBox6.Enabled = false;
+                    button6.Image = Properties.Resources.Disconnect;
+                    toolTip1.SetToolTip(button6, "Disconnect");
+                    opn_p4 = true;
+                    string iconPath = Path.Combine(exeFolder, "icon_closed.ico");
+                    this.Icon = new Icon(iconPath);
+                }
+            }
+            else
+            {
+                port4.Close();
+                textBox6.Enabled = true;
+                button6.Image = Properties.Resources.AddConnection;
+                toolTip1.SetToolTip(button6, "Connect");
+                opn_p4 = false;
+                if (opn_p1 == false && opn_p2 == false && opn_p3 == false)
+                {
+                    string iconPath = Path.Combine(exeFolder, "icon_open.ico");
+                    this.Icon = new Icon(iconPath);
+                }
+            }
+        }
+
+        private void button7_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void button8_Click(object sender, EventArgs e)
+        {
+            Portsettings(port1, comboBox2.Text);
+        }
+        private void button9_Click(object sender, EventArgs e)
+        {
+            Portsettings(port2, comboBox1.Text);
+        }
+        private void button10_Click(object sender, EventArgs e)
+        {
+            Portsettings(port3, comboBox3.Text);
+        }
+
+        private void button11_Click(object sender, EventArgs e)
+        {
+            Portsettings(port4, comboBox4.Text);
+        }
+        private void setports()
+        {
+            port1.BaudRate = 9600;
+            port1.Encoding = Encoding.ASCII;
+            port1.NewLine = "\n";
+            textBox3.Text = "9600";
+            port1.Parity = Parity.None;
+            port1.DataBits = 8;
+            port1.StopBits = StopBits.One;
+
+            port2.BaudRate = 9600;
+            port2.Encoding = Encoding.ASCII;
+            port2.NewLine = "\n";
+            textBox5.Text = "9600";
+            port2.Parity = Parity.None;
+            port2.DataBits = 8;
+            port2.StopBits = StopBits.One;
+
+            port3.BaudRate = 9600;
+            port3.Encoding = Encoding.ASCII;
+            port3.NewLine = "\n";
+            textBox4.Text = "9600";
+            port3.Parity = Parity.None;
+            port3.DataBits = 8;
+            port3.StopBits = StopBits.One;
+
+            port4.BaudRate = 9600;
+            port4.Encoding = Encoding.ASCII;
+            port4.NewLine = "\n";
+            textBox6.Text = "9600";
+            port4.Parity = Parity.None;
+            port4.DataBits = 8;
+            port4.StopBits = StopBits.One;
+
+            port1.DataReceived += SerialPort_DataReceived1;
+            port2.DataReceived += SerialPort_DataReceived2;
+            port3.DataReceived += SerialPort_DataReceived3;
+            port4.DataReceived += SerialPort_DataReceived4;
+        }
+
+        private string getparity(SerialPort port)
+        {
+            if (port.Parity == Parity.Odd)
+                return "Odd";
+            if (port.Parity == Parity.Even)
+                return "Even";
+            return "None";
+        }
+        private string getstopbits(SerialPort port)
+        {
+            if (port.StopBits == StopBits.One)
+                return "One";
+            if (port.StopBits == StopBits.Two)
+                return "Two";
+            if (port.StopBits == StopBits.OnePointFive)
+                return "OnePointFive";
+            return "None";
+        }
+        private void Portsettings(SerialPort port, string name)
+        {
+            if (name != "")
+            {
+                Form2 setting_form = new Form2(port);
+                setting_form.Text = name;
+                setting_form.Paritybox.Text = getparity(port);
+                setting_form.databitsbox.Text = port.DataBits.ToString();
+                setting_form.stopbitsbox.Text = getstopbits(port);
+                setting_form.ShowDialog();
+            }
+        }
+
+        private void Searchports(int n)
+        {
+            ComboBox c1 = null;
+
+            if (n == 1)
+                c1 = comboBox2;
+            else if (n == 2)
+                c1 = comboBox1;
+            else if (n == 3)
+                c1 = comboBox3;
+            else if (n == 4)
+                c1 = comboBox4;
+
+            if (c1 != null)
+            {
+
+                string previouslySelected = c1.SelectedItem as string;
+
+
+                string[] availablePorts = SerialPort.GetPortNames();
+
+                c1.Items.Clear();
+                c1.Items.AddRange(availablePorts);
+
+
+                if (!string.IsNullOrEmpty(previouslySelected) &&
+                    availablePorts.Contains(previouslySelected))
+                {
+                    c1.SelectedItem = previouslySelected;
+                }
+            }
+        }
+
+        const int MaxChars = 30000;
+
+        private readonly Queue<(string Text, Color Color)> _logBuffer = new();
+
+
+        private void aggiungi_a_textbox2(string inputText, string usr, Color color, bool queue_ign = false)
+        {
+            int selStart = textBox2.SelectionStart;
+            int selLength = textBox2.SelectionLength;
+
+            string line;
+            if (!queue_ign)
+            {
+                if (time_log)
+                {
+                    string timestamp = DateTime.Now.ToString("HH:mm:ss.fff");
+                    line = $"{timestamp} | {usr}: {inputText}";
+                }
+                else
+                {
+                    line = $"{usr}: {inputText}";
+                }
+                if (stop_text)
+                {
+                    _logBuffer.Enqueue((line, color));
+                    return;
+                }
+                else
+                {
+                    while (_logBuffer.Count > 0)
+                    {
+                        var item = _logBuffer.Dequeue();
+                        aggiungi_a_textbox2(item.Text, usr, item.Color, true);
+                    }
+                }
+            }
+            else
+                line = inputText;
+
+
+            if (textBox2.TextLength > MaxChars)
+            {
+                if (is_locked)
+                    textBox2.Text = "";
+            }
+
+
+
+            if (textBox2.TextLength > 0)
+                line = Environment.NewLine + line;
+
+            textBox2.SelectionStart = textBox2.TextLength;
+            textBox2.SelectionLength = 0;
+            textBox2.SelectionColor = color;
+            textBox2.AppendText(line);
+
+            if (is_locked)
+            {
+                textBox2.ScrollToCaret();
+            }
+            else
+            {
+                // Ripristina posizione utente
+                textBox2.SelectionStart = selStart;
+                textBox2.SelectionLength = selLength;
+            }
+
+        }
+
+
+
+
+
+        private int Openport(int baud, SerialPort c_port, string name)
+        {
+            if (baud > 0 && name != "")
+            {
+                c_port.PortName = name;
+                c_port.BaudRate = baud;
+                try
+                {
+                    c_port.Open();
+                }
+                catch (UnauthorizedAccessException ex)
+                {
+                    Console.WriteLine("Access to the port is denied: " + ex.Message);
+                    return 0;
+                }
+                catch (IOException ex)
+                {
+                    Console.WriteLine("An I/O error occurred: " + ex.Message);
+                    return 0;
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine("An error occurred: " + ex.Message);
+                    return 0;
+                }
+                return 1;
+            }
+            return 0;
+        }
+        private void Sendtoports(string output)
+        {
+            string lineEnding = "";
+
+            switch (comboBox6.SelectedIndex)
+            {
+                case 0: // No line ending
+                    lineEnding = "";
+                    break;
+
+                case 1: // New line
+                    lineEnding = "\n";
+                    break;
+
+                case 2: // Carriage return
+                    lineEnding = "\r";
+                    break;
+
+                case 3: // Both NL & CR
+                    lineEnding = "\r\n";
+                    break;
+            }
+
+            string dataToSend = output + lineEnding;
+
+            if (opn_p1 && checkBox1.Checked)
+                try
+                {
+                    port1.Write(dataToSend);
+                }
+                catch { }
+
+            if (opn_p2 && checkBox2.Checked)
+                try
+                {
+                    port2.Write(dataToSend);
+                }
+                catch { }
+
+            if (opn_p3 && checkBox3.Checked)
+                try
+                {
+                    port3.Write(dataToSend);
+                }
+                catch { }
+
+            if (opn_p4 && checkBox4.Checked)
+                try
+                {
+                    port4.Write(dataToSend);
+                }
+                catch { }
+        }
+        private void SerialPort_DataReceived1(object sender, SerialDataReceivedEventArgs e)
+        {
+            Serial_port_data2(port1, 1, true, false, false, false, opn_p1, checkBox1, Color.Red, mes1, port1Enabled);
+        }
+        private void SerialPort_DataReceived2(object sender, SerialDataReceivedEventArgs e)
+        {
+            Serial_port_data2(port2, 2, false, true, false, false, opn_p2, checkBox2, Color.Blue, mes2, port2Enabled);
+        }
+        private void SerialPort_DataReceived3(object sender, SerialDataReceivedEventArgs e)
+        {
+            Serial_port_data2(port3, 3, false, false, true, false, opn_p3, checkBox3, Color.Orange, mes3, port3Enabled);
+        }
+        private void SerialPort_DataReceived4(object sender, SerialDataReceivedEventArgs e)
+        {
+            Serial_port_data2(port4, 4, false, false, false, true, opn_p4, checkBox4, Color.Green, mes4, port4Enabled);
+        }
+        public void ScanScripts()
+        {
+            Directory.CreateDirectory("./scripts");
+            string[] paths = Directory.GetFiles("./scripts");
+            int i = 0;
+            scripts = new Script[paths.Length];
+            foreach (string path in paths)
+            {
+                string name = path.Substring(10);
+                scripts[i] = new Script();
+                scripts[i].name = name;
+                scripts[i].path = path;
+                string[] lines = File.ReadAllLines(path);
+                scripts[i].key = lines[0];
+                scripts[i].trigger = int.Parse(lines[1]);
+                scripts[i].p1 = bool.Parse(lines[2]);
+                scripts[i].p2 = bool.Parse(lines[3]);
+                scripts[i].p3 = bool.Parse(lines[4]);
+                scripts[i].p4 = bool.Parse(lines[5]);
+                if (scripts[i].trigger == 1)
+                {
+                    scripts[i].keypress = lines[6];
+                    scripts[i].active = bool.Parse(lines[7]);
+                }
+                else if (scripts[i].trigger == 2)
+                {
+                    scripts[i].reply = lines[6];
+                    scripts[i].p1_w = bool.Parse(lines[7]);
+                    scripts[i].p2_w = bool.Parse(lines[8]);
+                    scripts[i].p3_w = bool.Parse(lines[9]);
+                    scripts[i].p4_w = bool.Parse(lines[10]);
+                    scripts[i].active = bool.Parse(lines[11]);
+                }
+                i++;
+            }
+
+        }
+        public void scriptcheck(string data, bool p1, bool p2, bool p3, bool p4)
+        {
+            if (is_running)
+            {
+                foreach (Script script in scripts)
+                {
+                    if ((script.active && ((data.Contains(script.key)) || ((script.key == "===") && data.StartsWith("===")) || (script.key == "*")) && (((p1 == script.p1 && script.p1 == true)) || (p2 == script.p2 && script.p2 == true) || (p3 == script.p3 && script.p3 == true) || (p4 == script.p4 && script.p4 == true))))
+                        if (script.trigger == 1)
+                        {
+                            Thread inputThread = new Thread(() =>
+                            {
+                                scr_KeyPress(script.keypress, data);
+                            });
+                            inputThread.Start();
+                        }
+                        else if (script.trigger == 2)
+                            Reply(script);
+                }
+            }
+        }
+
+        public void scr_KeyPress(string car, string data)
+        {
+            int time = 0;
+            bool raw = false;
+            bool press = false;
+            bool release = false;
+            char singlekey = '\0';
+            if (car == "===")
+            {
+                car = data;
+                car = car.Substring(3);
+            }
+            VirtualKeyCode keypress = new VirtualKeyCode();
+            if (car[0] == '*')
+            {
+                car = car.Substring(1);
+                raw = true;
+            }
+            if (car[0] == '%')
+            {
+                int i = 1;
+                while (car[i] != '%')
+                {
+                    time = ((time * 10) + (car[i] - '0'));
+                    i++;
+                }
+                car = car.Substring(i + 1);
+            }
+            else if (car[0] == '+')
+            {
+                press = true;
+                car = car.Substring(1);
+            }
+            else if (car[0] == '-')
+            {
+                release = true;
+                car = car.Substring(1);
+            }
+            if (car.Length == 1)
+            {
+                singlekey = car[0];
+                keypress = (VirtualKeyCode)car[0];
+            }
+            if (raw)
+            {
+                int raw_key = Convert.ToInt32(car, 16);
+                keypress = (VirtualKeyCode)raw_key;
+            }
+            if (singlekey != '\0' || raw)
+            {
+                if (press)
+                    new InputSimulator().Keyboard.KeyDown(keypress);
+                else if (release)
+                    new InputSimulator().Keyboard.KeyUp(keypress);
+                else if (time != 0)
+                {
+                    new InputSimulator().Keyboard.KeyDown(keypress);
+                    wait(time);
+                    new InputSimulator().Keyboard.KeyUp(keypress);
+                }
+                else
+                    new InputSimulator().Keyboard.KeyPress(keypress);
+            }
+            else
+            {
+                if (time == 0)
+                {
+                    if (car[0] != '!')
+                        new InputSimulator().Keyboard.TextEntry(car);
+                    else if (car == "!LMB")
+                        new InputSimulator().Mouse.LeftButtonClick();
+                    else if (car == "!RMB")
+                        new InputSimulator().Mouse.RightButtonClick();
+                    else if (car == "!MMB")
+                        new InputSimulator().Mouse.MiddleButtonClick();
+                }
+                else
+                {
+                    if (car[0] != '!')
+                    {
+                        Stopwatch sw = new Stopwatch();
+                        TimeSpan targetTime = TimeSpan.FromMilliseconds(time);
+                        sw.Start();
+                        while (sw.Elapsed < targetTime)
+                        {
+                            new InputSimulator().Keyboard.TextEntry(car);
+                            Thread.Sleep(10);
+                        }
+                        sw.Stop();
+                        sw.Reset();
+
+                    }
+                    else if (car == "!LMB")
+                    {
+                        new InputSimulator().Mouse.LeftButtonDown();
+                        wait(time);
+                        new InputSimulator().Mouse.LeftButtonUp();
+                    }
+                    else if (car == "!RMB")
+                    {
+                        new InputSimulator().Mouse.RightButtonDown();
+                        wait(time);
+                        new InputSimulator().Mouse.RightButtonUp();
+                    }
+                    else if (car == "!MMB")
+                    {
+                        new InputSimulator().Mouse.MiddleButtonDown();
+                        wait(time);
+                        new InputSimulator().Mouse.MiddleButtonUp();
+                    }
+                }
+            }
+        }
+        public void Reply(Script c_script)
+        {
+            aggiungi_a_textbox2(c_script.reply, c_script.name, Color.Brown);
+            if (c_script.p1_w == true && opn_p1)
+            {
+                port1.WriteLine(c_script.reply);
+            }
+            if (c_script.p2_w == true && opn_p2)
+            {
+                port2.WriteLine(c_script.reply);
+            }
+            if (c_script.p3_w == true && opn_p3)
+            {
+                port3.WriteLine(c_script.reply);
+            }
+            if (c_script.p4_w == true && opn_p4)
+            {
+                port4.WriteLine(c_script.reply);
+            }
+        }
+
+        private void button12_Click(object sender, EventArgs e)
+        {
+            if (is_locked)
+            {
+                is_locked = false;
+                toolTip1.SetToolTip(button12, "AutoScrolling off");
+                button12.Image = Properties.Resources.Unlock;
+                textBox2.ScrollBars = RichTextBoxScrollBars.Both;
+                //                textBox2.Enabled = true;
+
+            }
+            else
+            {
+                is_locked = true;
+                button12.Image = Properties.Resources.Lock;
+                toolTip1.SetToolTip(button12, "AutoScrolling on");
+                textBox2.ScrollBars = RichTextBoxScrollBars.None;
+                //               textBox2.Enabled = false;
+            }
+            textBox2.SelectionStart = textBox2.Text.Length;
+            textBox2.SelectionLength = 0;
+            textBox2.ScrollToCaret();
+        }
+
+        private void button13_Click(object sender, EventArgs e)
+        {
+            textBox2.Text = "";
+        }
+        public void wait(int time_ms)
+        {
+            Stopwatch sw = new Stopwatch();
+            TimeSpan targetTime = TimeSpan.FromMilliseconds(time_ms);
+            sw.Start();
+            while (sw.Elapsed < targetTime)
+            {
+                Thread.Sleep(1);
+            }
+        }
+
+
+        public void Serial_port_data2(
+        SerialPort port, int num,
+        bool po1, bool po2, bool po3, bool po4,
+        bool opn, CheckBox checkbox, Color color,
+        StringBuilder sb, bool log)
+        {
+            sb.Append(port.ReadExisting());
+
+            for (int i = 0; i < sb.Length; i++)
+            {
+                char c = sb[i];
+
+                if (c == '\n' || c == '\r')
+                {
+                    int len = i;
+
+                    if (len == 0)
+                    {
+                        sb.Remove(0, 1);
+                        i--;
+                        continue;
+                    }
+
+                    string mess = sb.ToString(0, len).Trim();
+
+                    sb.Remove(0, i + 1);
+                    i = -1;
+
+                    if (mess.Length == 0)
+                        continue;
+
+                    ProcessMessage(mess, port.PortName, po1, po2, po3, po4, opn, color);
+                }
+            }
+        }
+        private void ProcessMessage(
+        string mess, string portName,
+        bool po1, bool po2, bool po3, bool po4,
+        bool opn, Color color)
+        {
+            if (!opn) return;
+
+            BeginInvoke(_processUiAction, new object[]
+            { mess, portName, po1, po2, po3, po4, color });
+
+            if (openGraphs.TryGetValue(portName, out var forms))
+            {
+                var nums = ParseNumbers(mess);
+                for (int i = 0; i < forms.Count && i < nums.Count; i++)
+                {
+                    forms[i].AddDataPoint(nums[i]);
+                }
+            }
+        }
+
+
+
+        private void UiProcess(string mess, string portName,
+        bool po1, bool po2, bool po3, bool po4, Color color)
+        {
+            if (logging)
+                write_logs(po1, po2, po3, po4, mess, portName);
+
+            aggiungi_a_textbox2(mess, portName, color);
+            scriptcheck(mess, po1, po2, po3, po4);
+        }
+
+        public static List<double> ParseNumbers(string s)
+        {
+            var numbers = new List<double>();
+            int i = 0;
+
+            while (i < s.Length)
+            {
+
+                while (i < s.Length && !char.IsDigit(s[i]) && s[i] != '-' && s[i] != '.')
+                    i++;
+
+                int start = i;
+                int dotCount = 0;
+
+                while (i < s.Length && (char.IsDigit(s[i]) || s[i] == '.' || s[i] == '-'))
+                {
+                    if (s[i] == '.')
+                    {
+                        dotCount++;
+                        if (dotCount > 1) break;
+                    }
+                    i++;
+                }
+
+                if (start < i &&
+                    double.TryParse(s.Substring(start, i - start),
+                                    NumberStyles.Float,
+                                    CultureInfo.InvariantCulture,
+                                    out double val))
+                {
+                    numbers.Add(val);
+                }
+            }
+
+            return numbers;
+        }
+
+
+        private void write_logs(bool po1, bool po2, bool po3, bool po4, string line, string usr)
+        {
+            string multilog_line = $"{usr}: {line}";
+            if (time_log)
+            {
+                string timestamp = DateTime.Now.ToString("HH:mm:ss.fff");
+                multilog_line = $"{timestamp} | {usr}: {line}";
+                line = $"{timestamp} | {line}";
+            }
+            if (po1 && checkBox8.Checked)
+            {
+                _writer1.WriteLine(line);
+            }
+            if (po2 && checkBox7.Checked)
+            {
+                _writer2.WriteLine(line);
+            }
+            if (po3 && checkBox6.Checked)
+            {
+                _writer3.WriteLine(line);
+            }
+            if (po4 && checkBox5.Checked)
+            {
+                _writer4.WriteLine(line);
+            }
+            if (multilog)
+            {
+                _writer5.WriteLine(multilog_line);
+            }
+        }
+        private void button14_Click(object sender, EventArgs e)
+        {
+            if (logging == false)
+            {
+                checkBox8.Enabled = false;
+                checkBox7.Enabled = false;
+                checkBox6.Enabled = false;
+                checkBox5.Enabled = false;
+                checkBox9.Enabled = false;
+                logging = true;
+                button14.Text = "Logging...";
+                string baseDir = AppDomain.CurrentDomain.BaseDirectory;
+                string logsDir = Path.Combine(baseDir, "logs");
+                Directory.CreateDirectory(logsDir);
+                string timestamp = DateTime.Now.ToString("yyyy-MM-dd_HH-mm-ss");
+                string sessionDir = Path.Combine(logsDir, timestamp);
+                Directory.CreateDirectory(sessionDir);
+                int check_n = 0;
+                if (checkBox8.Checked) //first serial port 
+                {
+                    check_n++;
+                    _logFilePath1 = Path.Combine(sessionDir, "log1.txt");
+                    _writer1 = new StreamWriter(
+                        new FileStream(
+                            _logFilePath1,
+                            FileMode.Create,
+                            FileAccess.Write,
+                            FileShare.Read
+                        )
+                     );
+                    _writer1.AutoFlush = true;
+                }
+                if (checkBox7.Checked) //second serial port 
+                {
+                    check_n++;
+                    _logFilePath2 = Path.Combine(sessionDir, "log2.txt");
+                    _writer2 = new StreamWriter(
+                        new FileStream(
+                            _logFilePath2,
+                            FileMode.Create,
+                            FileAccess.Write,
+                            FileShare.Read
+                        )
+                     );
+                    _writer2.AutoFlush = true;
+                }
+                if (checkBox6.Checked) //third serial port 
+                {
+                    check_n++;
+                    _logFilePath3 = Path.Combine(sessionDir, "log3.txt");
+                    _writer3 = new StreamWriter(
+                        new FileStream(
+                            _logFilePath3,
+                            FileMode.Create,
+                            FileAccess.Write,
+                            FileShare.Read
+                        )
+                     );
+                    _writer3.AutoFlush = true;
+                }
+                if (checkBox5.Checked) //third serial port 
+                {
+                    check_n++;
+                    _logFilePath4 = Path.Combine(sessionDir, "log4.txt");
+                    _writer4 = new StreamWriter(
+                        new FileStream(
+                            _logFilePath4,
+                            FileMode.Create,
+                            FileAccess.Write,
+                            FileShare.Read
+                        )
+                     );
+                    _writer4.AutoFlush = true;
+                }
+                if (check_n > 1)
+                {
+                    multilog = true;
+                    _logFilePath5 = Path.Combine(sessionDir, "log_mixed.txt");
+                    _writer5 = new StreamWriter(
+                        new FileStream(
+                            _logFilePath5,
+                            FileMode.Create,
+                            FileAccess.Write,
+                            FileShare.Read
+                        )
+                     );
+                    _writer5.AutoFlush = true;
+                }
+                else
+                    multilog = false;
+            }
+            else
+            {
+                checkBox8.Enabled = true;
+                checkBox7.Enabled = true;
+                checkBox6.Enabled = true;
+                checkBox5.Enabled = true;
+                checkBox9.Enabled = true;
+                logging = false;
+                button14.Text = "Start Logging";
+                _writer1?.Flush();
+                _writer1?.Close();
+                _writer1 = null;
+
+                _writer2?.Flush();
+                _writer2?.Close();
+                _writer2 = null;
+
+                _writer3?.Flush();
+                _writer3?.Close();
+                _writer3 = null;
+
+                _writer4?.Flush();
+                _writer4?.Close();
+                _writer4 = null;
+
+                _writer5?.Flush();
+                _writer5?.Close();
+                _writer5 = null;
+            }
+        }
+
+        private void button15_Click(object sender, EventArgs e)
+        {
+            if (time_log)
+            {
+                time_log = false;
+                button15.Image = Properties.Resources.Time_16x_cross2;
+                toolTip1.SetToolTip(button15, "Timestamps off");
+            }
+            else
+            {
+                time_log = true;
+                button15.Image = Properties.Resources.Time_color_16x;
+                toolTip1.SetToolTip(button15, "Timestamps on");
+            }
+        }
+
+        private void button16_Click(object sender, EventArgs e)
+        {
+            if (comboBox2.Text != "")
+                launch_graphs((int)numericUpDown1.Value, comboBox2.Text);
+        }
+
+        private void button17_Click(object sender, EventArgs e)
+        {
+            if (comboBox1.Text != "")
+                launch_graphs((int)numericUpDown2.Value, comboBox1.Text);
+        }
+
+        private void button18_Click(object sender, EventArgs e)
+        {
+            if (comboBox3.Text != "")
+                launch_graphs((int)numericUpDown3.Value, comboBox3.Text);
+        }
+
+        private void button19_Click(object sender, EventArgs e)
+        {
+            if (comboBox4.Text != "")
+                launch_graphs((int)numericUpDown4.Value, comboBox4.Text);
+        }
+        private void launch_graphs(int n_grafici, string nome_porta)
+        {
+            if (openGraphs.ContainsKey(nome_porta))
+            {
+                foreach (var form in openGraphs[nome_porta])
+                {
+                    form.Close();
+                }
+                openGraphs[nome_porta].Clear();
+            }
+            else
+            {
+                openGraphs[nome_porta] = new List<Form4>();
+            }
+            for (int i = 1; i <= n_grafici; i++)
+            {
+                var form = new Form4(this);
+                form.Text = $"{nome_porta} {i}";  // nome della finestra
+                form.Show();
+                openGraphs[nome_porta].Add(form);
+            }
+        }
+
+        private void comboBox2_Click(object sender, EventArgs e)
+        {
+            Searchports(1);
+        }
+
+        private void comboBox1_Click(object sender, EventArgs e)
+        {
+            Searchports(2);
+        }
+
+        private void comboBox3_Click(object sender, EventArgs e)
+        {
+            Searchports(3);
+        }
+
+        private void comboBox4_Click(object sender, EventArgs e)
+        {
+            Searchports(4);
+        }
+
+        private void comboBox2_MouseClick(object sender, MouseEventArgs e)
+        {
+        }
+
+        public void merge_graphs1(string name, Form4 currentform)
+        {
+            if (!looking_for_merge)
+            {
+                merging_form = currentform;
+                looking_for_merge = true;
+            }
+            else
+            if (looking_for_merge)
+            {
+                CreateParasiticForm(merging_form, currentform);
+                looking_for_merge = false;
+
+            }
+
+        }
+        public void CreateParasiticForm(Form4 f1, Form4 f2)
+        {
+            var slaves = new List<Form4>();
+
+            void Collect(Form4 f)
+            {
+                if (f.isMaster)
+                {
+                    foreach (var childEntry in f.children.Values)
+                    {
+                        if (childEntry.child != null)
+                            slaves.Add(childEntry.child);
+                    }
+                }
+                else
+                {
+                    slaves.Add(f);
+                }
+            }
+
+            Collect(f1);
+            Collect(f2);
+
+            slaves = slaves.Distinct().ToList();
+
+
+            var slaveNames = slaves.Select(s => s.Text).ToList();
+            var master = new Form4(this, true)
+            {
+                Text = "Merged: " + string.Join(" ", slaveNames)
+            };
+
+            for (int i = 0; i < slaves.Count; i++)
+            {
+                var s = slaves[i];
+                var color = GetDistinctColor(i, slaves.Count); // colore unico e distinguibile
+                var childEntry = new child_form(s, color, master.formsPlot1);
+                master.children.Add(s, childEntry);
+            }
+
+            if (f1.isMaster) f1.Close();
+            if (f2.isMaster) f2.Close();
+
+
+            foreach (var s in slaves)
+            {
+                s.MasterForm = master;
+                s.reset_merge();
+                s.Visible = false;
+                s.is_visible = false;
+            }
+
+            master.Show();
+        }
+
+        private System.Drawing.Color ColorFromHSV(double hue, double saturation, double value)
+        {
+            int hi = Convert.ToInt32(Math.Floor(hue / 60)) % 6;
+            double f = hue / 60 - Math.Floor(hue / 60);
+
+            value = value * 255;
+            int v = Convert.ToInt32(value);
+            int p = Convert.ToInt32(value * (1 - saturation));
+            int q = Convert.ToInt32(value * (1 - f * saturation));
+            int t = Convert.ToInt32(value * (1 - (1 - f) * saturation));
+
+            switch (hi)
+            {
+                case 0: return System.Drawing.Color.FromArgb(255, v, t, p);
+                case 1: return System.Drawing.Color.FromArgb(255, q, v, p);
+                case 2: return System.Drawing.Color.FromArgb(255, p, v, t);
+                case 3: return System.Drawing.Color.FromArgb(255, p, q, v);
+                case 4: return System.Drawing.Color.FromArgb(255, t, p, v);
+                default: return System.Drawing.Color.FromArgb(255, v, p, q);
+            }
+        }
+
+        private System.Drawing.Color GetDistinctColor(int index, int total)
+        {
+            // Distribuisci la tonalità uniformemente nello spettro
+            float hue = (360f / total) * index; // tonalità da 0 a 360
+            float saturation = 0.7f; // saturazione alta
+            float value = 0.9f;      // luminosità alta
+
+            return ColorFromHSV(hue, saturation, value);
+        }
+
+
+
+
+        public void undo_merge()
+        {
+            looking_for_merge = false;
+            merging_form = null;
+        }
+        volatile bool port1Enabled;
+        private void checkBox8_CheckedChanged(object sender, EventArgs e)
+        {
+            port1Enabled = checkBox8.Checked;
+        }
+        volatile bool port2Enabled;
+
+        private void checkBox7_CheckedChanged(object sender, EventArgs e)
+        {
+            port2Enabled = checkBox7.Checked;
+        }
+        volatile bool port3Enabled;
+        private void checkBox6_CheckedChanged(object sender, EventArgs e)
+        {
+            port3Enabled = checkBox6.Checked;
+        }
+        volatile bool port4Enabled;
+        private void checkBox5_CheckedChanged(object sender, EventArgs e)
+        {
+            port4Enabled = checkBox5.Checked;
+        }
+
+        private void textBox1_TextChanged(object sender, EventArgs e)
+        {
+            if (historyIndex != 0 && textBox1.Focused && change_due_to_key == false)
+            {
+                historyIndex = 0;
+            }
+            change_due_to_key = false;
+        }
+        bool change_due_to_key = false;
+
+        private void textBox1_KeyDown(object sender, KeyEventArgs e)
+        {
+            if (e.KeyCode == Keys.Up)
+            {
+                e.SuppressKeyPress = true; // evita beep o comportamento default
+
+                if (commandHistory.Count == 0)
+                    return;
+
+                historyIndex++;
+
+                if (historyIndex > commandHistory.Count)
+                    historyIndex = 1;
+                change_due_to_key = true;
+                textBox1.Text = commandHistory[commandHistory.Count - historyIndex];
+                textBox1.SelectionStart = textBox1.Text.Length;
+            }
+            else if (e.KeyCode == Keys.Down)
+            {
+                e.SuppressKeyPress = true;
+
+                if (commandHistory.Count == 0)
+                    return;
+
+                if (historyIndex > 0)
+                {
+                    historyIndex--;
+
+                    if (historyIndex == 0)
+                        textBox1.Text = "";
+                    else
+                    {
+                        change_due_to_key = true;
+                        textBox1.Text = commandHistory[commandHistory.Count - historyIndex];
+                    }
+
+                    textBox1.SelectionStart = textBox1.Text.Length;
+                }
+            }
+        }
+
+
+        bool stop_text = false;
+
+
+        private void remove_ports(object sender, EventArgs e)
+        {
+            string[] availablePorts = SerialPort.GetPortNames();
+
+            CheckCombo(comboBox1, availablePorts);
+            CheckCombo(comboBox2, availablePorts);
+            CheckCombo(comboBox3, availablePorts);
+            CheckCombo(comboBox4, availablePorts);
+        }
+
+        private void CheckCombo(ComboBox combo, string[] availablePorts)
+        {
+            if (combo.SelectedItem != null)
+            {
+                string selectedPort = combo.SelectedItem.ToString();
+
+                bool exists = availablePorts.Contains(selectedPort);
+
+                if (!exists)
+                {
+                    combo.SelectedIndex = -1; // opzionale: deseleziona
+                }
+            }
+        }
+
+        private void comboBox2_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            if (opn_p1 == true)
+            {
+                if (port1.PortName == comboBox2.SelectedItem?.ToString())
+                    return;
+                port1.Close();
+                textBox3.Enabled = true;
+                button3.Image = Properties.Resources.AddConnection;
+                toolTip1.SetToolTip(button3, "Connect");
+                opn_p1 = false;
+                if (opn_p4 == false && opn_p2 == false && opn_p3 == false)
+                {
+                    string iconPath = Path.Combine(exeFolder, "icon_open.ico");
+                    this.Icon = new Icon(iconPath);
+                }
+            }
+        }
+
+        private void comboBox1_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            if (opn_p2 == true)
+            {
+                if (port2.PortName == comboBox1.SelectedItem?.ToString())
+                    return;
+                port2.Close();
+                textBox5.Enabled = true;
+                button5.Image = Properties.Resources.AddConnection;
+                toolTip1.SetToolTip(button5, "Connect");
+                opn_p2 = false;
+                if (opn_p4 == false && opn_p1 == false && opn_p3 == false)
+                {
+                    string iconPath = Path.Combine(exeFolder, "icon_open.ico");
+                    this.Icon = new Icon(iconPath);
+                }
+            }
+        }
+
+        private void comboBox3_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            if (opn_p3 == true)
+            {
+                if (port3.PortName == comboBox3.SelectedItem?.ToString())
+                    return;
+                port3.Close();
+                textBox4.Enabled = true;
+                button4.Image = Properties.Resources.AddConnection;
+                toolTip1.SetToolTip(button4, "Connect");
+                opn_p3 = false;
+                if (opn_p4 == false && opn_p2 == false && opn_p1 == false)
+                {
+                    string iconPath = Path.Combine(exeFolder, "icon_open.ico");
+                    this.Icon = new Icon(iconPath);
+                }
+            }
+        }
+
+        private void comboBox4_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            if (opn_p4 == true)
+            {
+                if (port4.PortName == comboBox4.SelectedItem?.ToString())
+                    return;
+                port4.Close();
+                textBox6.Enabled = true;
+                button6.Image = Properties.Resources.AddConnection;
+                toolTip1.SetToolTip(button6, "Connect");
+                opn_p4 = false;
+                if (opn_p1 == false && opn_p2 == false && opn_p3 == false)
+                {
+                    string iconPath = Path.Combine(exeFolder, "icon_open.ico");
+                    this.Icon = new Icon(iconPath);
+                }
+            }
+        }
+
+        private void textBox2_Enter(object sender, EventArgs e)
+        {
+            if (is_locked)
+                this.ActiveControl = null;
+            else
+                stop_text = true;
+        }
+
+        private void textBox2_Leave(object sender, EventArgs e)
+        {
+            if (!is_locked)
+            {
+                stop_text = false;
+            }
+        }
+
+        private void Form1_MouseClick(object sender, MouseEventArgs e)
+        {
+            this.ActiveControl = null;
+        }
+
+        private void button7_Click_1(object sender, EventArgs e)
+        {
+            string baseDir = AppDomain.CurrentDomain.BaseDirectory;
+            string logsDir = Path.Combine(baseDir, "logs");
+            if (!Directory.Exists(logsDir))
+            {
+                Directory.CreateDirectory(logsDir);
+            }
+
+            Process.Start(new ProcessStartInfo
+            {
+                FileName = logsDir,
+                UseShellExecute = true
+            });
+        }
+        private void LoadSettings()
+        {
+            if (!File.Exists(settingsPath))
+            {
+                settings = new AppSettings();
+                ApplySettingsToControls();
+                return;
+            }
+
+            try
+            {
+                string json = File.ReadAllText(settingsPath);
+
+                settings = JsonSerializer.Deserialize<AppSettings>(json)
+                           ?? new AppSettings();
+
+                ApplySettingsToControls();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(
+                    $"Errore nel caricamento delle impostazioni:\n\n{ex.Message}",
+                    "Errore",
+                    MessageBoxButtons.OK,
+                    MessageBoxIcon.Warning);
+
+                settings = new AppSettings();
+                ApplySettingsToControls();
+            }
+        }
+
+
+        private void ApplySettingsToControls()
+        {
+            // =========================
+            // CHECKBOX
+            // =========================
+
+            checkBox1.Checked = settings.check1;
+            checkBox2.Checked = settings.check2;
+            checkBox3.Checked = settings.check3;
+            checkBox4.Checked = settings.check4;
+            checkBox5.Checked = settings.check5;
+            checkBox6.Checked = settings.check6;
+            checkBox7.Checked = settings.check7;
+            checkBox8.Checked = settings.check8;
+            checkBox9.Checked = settings.check9;
+
+
+            // =========================
+            // BAUD RATE
+            // =========================
+
+            textBox3.Text = settings.BaudRate1;
+            textBox5.Text = settings.BaudRate2;
+            textBox4.Text = settings.BaudRate3;
+            textBox6.Text = settings.BaudRate4;
+
+
+            // =========================
+            // NUMERIC UP DOWN
+            // =========================
+
+            numericUpDown1.Value = settings.graph_num1;
+            numericUpDown2.Value = settings.graph_num2;
+            numericUpDown3.Value = settings.graph_num3;
+            numericUpDown4.Value = settings.graph_num4;
+
+
+            // =========================
+            // COMBOBOX
+            // =========================
+
+            if (settings.line_end_index >= 0 &&
+                settings.line_end_index < comboBox6.Items.Count)
+            {
+                comboBox6.SelectedIndex = settings.line_end_index;
+            }
+
+
+            // =========================
+            // VARIABILI
+            // =========================
+
+            time_log = settings.time_button;
+            is_locked = settings.locked_button;
+
+
+            if (!is_locked)
+            {
+                toolTip1.SetToolTip(button12, "AutoScrolling off");
+                button12.Image = Properties.Resources.Unlock;
+                textBox2.ScrollBars = RichTextBoxScrollBars.Both;
+                //               textBox2.Enabled = true;
+
+            }
+            else
+            {
+                button12.Image = Properties.Resources.Lock;
+                toolTip1.SetToolTip(button12, "AutoScrolling on");
+                textBox2.ScrollBars = RichTextBoxScrollBars.None;
+                //               textBox2.Enabled = false;
+            }
+            textBox2.SelectionStart = textBox2.Text.Length;
+            textBox2.SelectionLength = 0;
+            textBox2.ScrollToCaret();
+
+
+            if (!time_log)
+            {
+                button15.Image = Properties.Resources.Time_16x_cross2;
+                toolTip1.SetToolTip(button15, "Timestamps off");
+            }
+            else
+            {
+                button15.Image = Properties.Resources.Time_color_16x;
+                toolTip1.SetToolTip(button15, "Timestamps on");
+            }
+
+            port1.Parity = ParseParity(settings.Parity1);
+            port1.DataBits = settings.DataBits1;
+            port1.StopBits = ParseStopBits(settings.StopBits1);
+
+            if (settings.CustomBuffer1)
+                port1.ReadBufferSize = settings.ReadBufferSize1;
+
+
+            port2.Parity = ParseParity(settings.Parity2);
+            port2.DataBits = settings.DataBits2;
+            port2.StopBits = ParseStopBits(settings.StopBits2);
+
+            if (settings.CustomBuffer2)
+                port2.ReadBufferSize = settings.ReadBufferSize2;
+
+
+            port3.Parity = ParseParity(settings.Parity3);
+            port3.DataBits = settings.DataBits3;
+            port3.StopBits = ParseStopBits(settings.StopBits3);
+
+            if (settings.CustomBuffer3)
+                port3.ReadBufferSize = settings.ReadBufferSize3;
+
+
+            port4.Parity = ParseParity(settings.Parity4);
+            port4.DataBits = settings.DataBits4;
+            port4.StopBits = ParseStopBits(settings.StopBits4);
+
+            if (settings.CustomBuffer4)
+                port4.ReadBufferSize = settings.ReadBufferSize4;
+
+        }
+        private Parity ParseParity(string value)
+        {
+            return value switch
+            {
+                "Odd" => Parity.Odd,
+                "Even" => Parity.Even,
+                _ => Parity.None
+            };
+        }
+        private StopBits ParseStopBits(string value)
+        {
+            return value switch
+            {
+                "None" => StopBits.None,
+                "One" => StopBits.One,
+                "OnePointFive" => StopBits.OnePointFive,
+                "Two" => StopBits.Two,
+                _ => StopBits.One
+            };
+        }
+
+        private void SaveSettings()
+        {
+            try
+            {
+                // =========================
+                // CHECKBOX
+                // =========================
+
+                settings.check1 = checkBox1.Checked;
+                settings.check2 = checkBox2.Checked;
+                settings.check3 = checkBox3.Checked;
+                settings.check4 = checkBox4.Checked;
+                settings.check5 = checkBox5.Checked;
+                settings.check6 = checkBox6.Checked;
+                settings.check7 = checkBox7.Checked;
+                settings.check8 = checkBox8.Checked;
+                settings.check9 = checkBox9.Checked;
+
+
+                // =========================
+                // BAUD RATE
+                // =========================
+
+                settings.BaudRate1 = textBox3.Text;
+                settings.BaudRate2 = textBox5.Text;
+                settings.BaudRate3 = textBox4.Text;
+                settings.BaudRate4 = textBox6.Text;
+
+
+                // =========================
+                // NUMERIC UP DOWN
+                // =========================
+
+                settings.graph_num1 = (int)numericUpDown1.Value;
+                settings.graph_num2 = (int)numericUpDown2.Value;
+                settings.graph_num3 = (int)numericUpDown3.Value;
+                settings.graph_num4 = (int)numericUpDown4.Value;
+
+
+                // =========================
+                // COMBOBOX
+                // =========================
+
+                settings.line_end_index = comboBox6.SelectedIndex;
+
+
+                // =========================
+                // VARIABILI
+                // =========================
+
+                settings.time_button = time_log;
+                settings.locked_button = is_locked;
+
+
+
+
+                // PORTA 1
+                settings.Parity1 = getparity(port1);
+                settings.DataBits1 = port1.DataBits;
+                settings.StopBits1 = getstopbits(port1);
+                settings.ReadBufferSize1 = port1.ReadBufferSize;
+
+
+                // PORTA 2
+                settings.Parity2 = getparity(port2);
+                settings.DataBits2 = port2.DataBits;
+                settings.StopBits2 = getstopbits(port2);
+                settings.ReadBufferSize2 = port2.ReadBufferSize;
+
+
+                // PORTA 3
+                settings.Parity3 = getparity(port3);
+                settings.DataBits3 = port3.DataBits;
+                settings.StopBits3 = getstopbits(port3);
+                settings.ReadBufferSize3 = port3.ReadBufferSize;
+
+
+                // PORTA 4
+                settings.Parity4 = getparity(port4);
+                settings.DataBits4 = port4.DataBits;
+                settings.StopBits4 = getstopbits(port4);
+                settings.ReadBufferSize4 = port4.ReadBufferSize;
+
+
+                // =========================
+                // SERIALIZZAZIONE
+                // =========================
+
+                string json = JsonSerializer.Serialize(
+                    settings,
+                    new JsonSerializerOptions
+                    {
+                        WriteIndented = true
+                    });
+
+                File.WriteAllText(settingsPath, json);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(
+                    $"Errore nel salvataggio delle impostazioni:\n\n{ex.Message}",
+                    "Errore",
+                    MessageBoxButtons.OK,
+                    MessageBoxIcon.Error);
+            }
+        }
+
+        private void Form1_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            SaveSettings();
+        }
+    }
+
+
+
+
+    public class Script
+    {
+        public string name { get; set; }
+        public string key;
+        public int trigger;
+        public bool p1;
+        public bool p2;
+        public bool p3;
+        public bool p4;
+        public string reply;
+        public bool p1_w;
+        public bool p2_w;
+        public bool p3_w;
+        public bool p4_w;
+        public string keypress;
+        public string path;
+        public bool active;
+    }
+
+    public class Textbox_entry
+    {
+        public string inputText;
+        public string usr;
+        public Color color;
+        public string line;
+        public Textbox_entry(string in_text, string lin, string user, Color clr)
+        {
+            inputText = in_text;
+            line = lin;
+            usr = user;
+            color = clr;
+        }
+    }
+
+
+    public class AppSettings
+    {
+        public bool check1 { get; set; } = false;
+        public bool check2 { get; set; } = false;
+        public bool check3 { get; set; } = false;
+        public bool check4 { get; set; } = false;
+        public bool check5 { get; set; } = false;
+        public bool check6 { get; set; } = false;
+        public bool check7 { get; set; } = false;
+        public bool check8 { get; set; } = false;
+        public bool check9 { get; set; } = false;
+
+        public bool time_button { get; set; } = false;
+        public bool locked_button { get; set; } = false;
+
+        public string BaudRate1 { get; set; } = "9600";
+        public string BaudRate2 { get; set; } = "9600";
+        public string BaudRate3 { get; set; } = "9600";
+        public string BaudRate4 { get; set; } = "9600";
+
+        public int graph_num1 { get; set; } = 1;
+        public int graph_num2 { get; set; } = 1;
+        public int graph_num3 { get; set; } = 1;
+        public int graph_num4 { get; set; } = 1;
+
+        public int line_end_index { get; set; } = 0;
+
+
+        // PORTA 1
+        public string Parity1 { get; set; } = "None";
+        public int DataBits1 { get; set; } = 8;
+        public string StopBits1 { get; set; } = "One";
+        public bool CustomBuffer1 { get; set; } = false;
+        public int ReadBufferSize1 { get; set; } = 4096;
+
+
+        // PORTA 2
+        public string Parity2 { get; set; } = "None";
+        public int DataBits2 { get; set; } = 8;
+        public string StopBits2 { get; set; } = "One";
+        public bool CustomBuffer2 { get; set; } = false;
+        public int ReadBufferSize2 { get; set; } = 4096;
+
+
+        // PORTA 3
+        public string Parity3 { get; set; } = "None";
+        public int DataBits3 { get; set; } = 8;
+        public string StopBits3 { get; set; } = "One";
+        public bool CustomBuffer3 { get; set; } = false;
+        public int ReadBufferSize3 { get; set; } = 4096;
+
+
+        // PORTA 4
+        public string Parity4 { get; set; } = "None";
+        public int DataBits4 { get; set; } = 8;
+        public string StopBits4 { get; set; } = "One";
+        public bool CustomBuffer4 { get; set; } = false;
+        public int ReadBufferSize4 { get; set; } = 4096;
+
+    }
+
+
+}
